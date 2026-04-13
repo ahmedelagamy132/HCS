@@ -53,6 +53,32 @@ Bun.serve({
           const activity = await sql`SELECT * FROM public.v_recent_activity LIMIT 10`;
           return new Response(JSON.stringify(activity), { headers: { "Content-Type": "application/json" } });
         }
+        if (pathname === "/api/analyze" && req.method === "POST") {
+          try {
+            const body = await req.json();
+            const ollamaReq = {
+              model: body.model || "llava",
+              prompt: body.prompt || "Analyze this image.",
+              stream: false
+            };
+            if (body.image) {
+               ollamaReq.images = [body.image];
+            }
+            const ollamaRes = await fetch("http://127.0.0.1:11434/api/generate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(ollamaReq)
+            });
+            if (!ollamaRes.ok) {
+              const errText = await ollamaRes.text();
+              throw new Error("Ollama generation failed: " + ollamaRes.status + " " + errText);
+            }
+            const data = await ollamaRes.json();
+            return new Response(JSON.stringify({ response: data.response }), { headers: { "Content-Type": "application/json" } });
+          } catch(e) {
+             return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { "Content-Type": "application/json" } });
+          }
+        }
         if (pathname === "/api/models" && req.method === "GET") {
           try {
             const ollamaRes = await fetch("http://127.0.0.1:11434/api/tags");
