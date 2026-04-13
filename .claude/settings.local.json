@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bun:*)",
+      "Bash(cmd:*)",
+      "Bash(node serve.mjs)",
+      "Bash(node \"C:\\\\Users\\\\ahmed\\\\Desktop\\\\HCS\\\\try2\\\\screenshot.mjs\" http://localhost:3000 hero-before)",
+      "Bash(curl:*)",
+      "Bash(node:*)",
+      "Bash(npm list:*)",
+      "Bash(npm install:*)"
+    ]
+  }
+}

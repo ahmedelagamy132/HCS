@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCS — Equine Intelligence System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:        #080603;
+            --bg2:       #100D07;
+            --bg3:       #18130C;
+            --bg4:       #1F1910;
+            --amber:     #C47820;
+            --amber-lit: #E09830;
+            --amber-dim: #7A4C12;
+            --cream:     #EDE0C6;
+            --cream-dim: #9A8A70;
+            --cream-faint:#4A4030;
+            --green:     #4E9468;
+            --green-dim: #2A5A3A;
+            --danger:    #C04040;
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--cream);
+            font-family: 'Jost', sans-serif;
+            font-weight: 300;
+            overflow-x: hidden;
+        }
+
+        /* Grain texture */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ─── NAV ─────────────────────────────── */
+        #nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 500;
+            padding: 1.8rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: padding .4s, background .4s, border .4s;
+        }
+
+        #nav.scrolled {
+            padding: 1rem 5%;
+            background: rgba(8,6,3,.94);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(196,120,32,.14);
+        }
+
+        .nav-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.7rem;
+            font-weight: 600;
+            letter-spacing: .25em;
+            color: var(--cream);
+            text-decoration: none;
+        }
+        .nav-logo em { color: var(--amber); font-style: normal; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--cream-dim);
+            text-decoration: none;
+            font-size: .7rem;
+            font-weight: 400;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            transition: color .3s;
+        }
+        .nav-links a:hover { color: var(--amber-lit); }
+
+        .nav-cta {
+            background: transparent;
+            border: 1px solid var(--amber);
+            color: var(--amber);
+            padding: .55rem 1.6rem;
+            font-family: 'Jost', sans-serif;
+            font-size: .68rem;
+            font-weight: 400;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background .3s, color .3s;
+        }
+        .nav-cta:hover { background: var(--amber); color: var(--bg); }
+
+        /* ─── HERO ────────────────────────────── */
+        .hero {
+            position: relative;
+            height: 100vh;
+            min-height: 680px;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background-image: url('https://images.unsplash.com/photo-1654693519854-175cee0fa7d6?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-size: cover;
+            background-position: 65% 35%;
+            filter: brightness(.32) saturate(.65);
+            transform: scale(1.06);
+            animation: hz 22s ease-in-out infinite alternate;
+        }
+
+        @keyframes hz {
+            from { transform: scale(1.06) translateX(0); }
+            to   { transform: scale(1.12) translateX(-2%); }
+        }
+
+        /* CV scan line */
+        .hero-scan {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 3px,
+                rgba(196,120,32,.025) 3px,
+                rgba(196,120,32,.025) 4px
+            );
+            pointer-events: none;
+        }
+
+        /* CV grid */
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(196,120,32,.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(196,120,32,.04) 1px, transparent 1px);
+            background-size: 72px 72px;
+            pointer-events: none;
+        }
+
+        /* Moving scan beam */
+        .hero-beam {
+            position: absolute;
+            left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(196,120,32,.5), transparent);
+            animation: beam 5s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes beam {
+            from { top: -2px; }
+            to   { top: 100%; }
+        }
+
+        /* Corner brackets */
+        .corner {
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            border-color: rgba(196,120,32,.55);
+            border-style: solid;
+        }
+        .corner.tl { top:12%; left:8%;  border-width:1px 0 0 1px; }
+        .corner.tr { top:12%; right:8%; border-width:1px 1px 0 0; }
+        .corner.bl { bottom:18%; left:8%;  border-width:0 0 1px 1px; }
+        .corner.br { bottom:18%; right:8%; border-width:0 1px 1px 0; }
+
+        /* Detection box — commented out
+        .det-box {
+            position: absolute;
+            top: 24%; right: 18%;
+            width: 190px; height: 230px;
+            border: 1px solid rgba(196,120,32,.5);
+            animation: det-pulse 2.8s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .det-box::before {
+            content: 'SUBJECT DETECTED';
+            position: absolute;
+            top: -1.4rem; left: 0;
+            font-size: .5rem;
+            letter-spacing: .18em;
+            color: var(--amber);
+        }
+        .det-box::after {
+            content: '♥ 46 BPM   ■ 37.6°C';
+            position: absolute;
+            bottom: -1.4rem; left: 0;
+            font-size: .55rem;
+            letter-spacing: .1em;
+            color: var(--green);
+        }
+        @keyframes det-pulse {
+            0%,100% { opacity:.55; box-shadow:none; }
+            50%      { opacity:1;   box-shadow:0 0 18px rgba(196,120,32,.2); }
+        }
+        */
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 6rem 8% 120px;
+        }
+
+        .eyebrow {
+            font-size: .6rem;
+            letter-spacing: .42em;
+            text-transform: uppercase;
+            color: var(--amber);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.1rem;
+            opacity: 0;
+            animation: fu .8s .3s forwards;
+        }
+        .eyebrow::before {
+            content: '';
+            display: block;
+            width: 36px; height: 1px;
+            background: var(--amber);
+        }
+
+        @keyframes fu {
+            from { opacity:0; transform:translateY(18px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3.5rem, 7.5vw, 7.5rem);
+            font-weight: 300;
+            line-height: .9;
+            letter-spacing: -.01em;
+            color: var(--cream);
+            opacity: 0;
+            animation: fu .8s .5s forwards;
+        }
+        .hero-title em {
+            font-style: italic;
+            color: var(--amber-lit);
+        }
+
+        .hero-sub {
+            margin-top: 2.2rem;
+            max-width: 460px;
+            font-size: .88rem;
+            font-weight: 300;
+            line-height: 1.85;
+            color: var(--cream-dim);
+            opacity: 0;
+            animation: fu .8s .7s forwards;
+        }
+
+        .hero-actions {
+            margin-top: 2.8rem;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            opacity: 0;
+            animation: fu .8s .9s forwards;
+        }
+
+        .btn-primary {
+            background: var(--amber);
+            color: var(--bg);
+            border: none;
+            padding: 1rem 2.6rem;
+            font-family: 'Jost', sans-serif;
+            font-size: .72rem;
+            font-weight: 500;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background .3s, transform .3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary:hover { background: var(--amber-lit); transform: translateY(-2px); }
+
+        .btn-ghost {
+            color: var(--cream-dim);
+            background: none;
+            border: none;
+            font-family: 'Jost', sans-serif;
+            font-size: .72rem;
+            font-weight: 300;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            transition: color .3s;
+            text-decoration: none;
+        }
+        .btn-ghost::after { content:'→'; transition: transform .3s; }
+        .btn-ghost:hover { color: var(--cream); }
+        .btn-ghost:hover::after { transform: translateX(5px); }
+
+        /* Hero stat bar */
+        .hero-stats {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            background: rgba(8,6,3,.72);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(196,120,32,.18);
+        }
+        .hstat {
+            padding: 1.3rem 2.2rem;
+            border-right: 1px solid rgba(196,120,32,.12);
+        }
+        .hstat:last-child { border-right: none; }
+        .hstat-n {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.9rem;
+            font-weight: 500;
+            color: var(--amber-lit);
+            line-height: 1;
+        }
+        .hstat-l {
+            margin-top: .3rem;
+            font-size: .6rem;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--cream-dim);
+        }
+
+        /* ─── SHARED ──────────────────────────── */
+        section { padding: 7rem 8%; }
+
+        .lbl {
+            font-size: .88rem;
+            font-weight: 400;
+            letter-spacing: .28em;
+            text-transform: uppercase;
+            color: var(--amber-lit);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.3rem;
+        }
+        .lbl::before {
+            content:'';
+            display:block;
+            width:36px; height:1.5px;
+            background: var(--amber-lit);
+            flex-shrink: 0;
+        }
+
+        .sec-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.4rem, 4.8vw, 4.4rem);
+            font-weight: 300;
+            line-height: 1.08;
+            color: var(--cream);
+        }
+        .sec-title em { font-style:italic; color: var(--amber-lit); }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity .85s ease, transform .85s ease;
+        }
+        .reveal.vis { opacity:1; transform: translateY(0); }
+        .reveal.d1 { transition-delay:.1s; }
+        .reveal.d2 { transition-delay:.22s; }
+        .reveal.d3 { transition-delay:.34s; }
+
+        /* ─── INTRO ───────────────────────────── */
+        .intro {
+            background: var(--bg2);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 7rem;
+            align-items: center;
+        }
+
+        .intro-body {
+            margin-top: 2rem;
+            font-size: .9rem;
+            line-height: 1.9;
+            color: var(--cream-dim);
+        }
+
+        .tech-badges {
+            margin-top: 3.5rem;
+            display: flex;
+            gap: 2.5rem;
+        }
+        .badge-item {}
+        .badge-val {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 500;
+            color: var(--amber-lit);
+            letter-spacing: .05em;
+        }
+        .badge-lbl {
+            font-size: .6rem;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--cream-dim);
+            margin-top: .15rem;
+        }
+
+        /* image + vitals card */
+        .intro-visual { position: relative; }
+
+        .img-frame {
+            position: relative;
+            overflow: hidden;
+        }
+        .img-frame img {
+            width: 100%;
+            height: 520px;
+            object-fit: cover;
+            object-position: center top;
+            filter: brightness(.65) saturate(.75);
+            display: block;
+        }
+
+        /* CV points overlay */
+        .cv-pt {
+            position: absolute;
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            background: var(--amber);
+            box-shadow: 0 0 14px var(--amber);
+            transform: translate(-50%,-50%);
+        }
+        .cv-pt::after {
+            content: attr(data-l);
+            position: absolute;
+            top: -1.6rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: .48rem;
+            letter-spacing: .12em;
+            color: var(--amber-lit);
+            white-space: nowrap;
+        }
+
+        .vitals-float {
+            position: absolute;
+            bottom: 2rem;
+            right: -2.5rem;
+            background: rgba(10,8,4,.93);
+            border: 1px solid rgba(196,120,32,.28);
+            padding: 1.5rem 1.8rem;
+            width: 210px;
+            backdrop-filter: blur(10px);
+        }
+        .vf-title {
+            font-size: .52rem;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-bottom: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        .vf-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: .42rem 0;
+            border-bottom: 1px solid rgba(255,255,255,.05);
+        }
+        .vf-row:last-of-type { border-bottom: none; }
+        .vf-key { font-size: .62rem; color: var(--cream-dim); }
+        .vf-val {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: var(--green);
+        }
+        .vf-val.warn { color: var(--danger); }
+
+        /* ECG line */
+        .ecg-wrap {
+            margin-top: 1.1rem;
+            height: 36px;
+            overflow: hidden;
+        }
+        .ecg-svg {
+            width: 400%; height: 36px;
+            animation: ecg-move 2.2s linear infinite;
+        }
+        @keyframes ecg-move {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+        }
+
+        /* live dot */
+        .ldot {
+            display: inline-block;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: ldot 1.9s ease-in-out infinite;
+        }
+        @keyframes ldot {
+            0%,100% { opacity:1; box-shadow: 0 0 7px var(--green); }
+            50%      { opacity:.35; box-shadow: none; }
+        }
+
+        /* ─── HOW IT WORKS ────────────────────── */
+        .how { background: var(--bg); }
+
+        .how-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 5rem;
+        }
+        .how-head-note {
+            max-width: 280px;
+            font-size: .83rem;
+            line-height: 1.8;
+            color: var(--cream-dim);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 1px;
+            background: rgba(196,120,32,.1);
+        }
+
+        .step {
+            background: var(--bg);
+            padding: 3rem 2.8rem;
+            position: relative;
+            overflow: hidden;
+            transition: background .4s;
+        }
+        .step:hover { background: var(--bg2); }
+
+        .step-n {
+            position: absolute;
+            top: 2rem; right: 2.2rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 7.5rem;
+            font-weight: 300;
+            color: rgba(196,120,32,.45);
+            line-height: 1;
+            transition: color .4s;
+        }
+        .step:hover .step-n { color: rgba(196,120,32,.72); }
+
+        .step-ico {
+            width: 50px; height: 50px;
+            border: 1px solid rgba(196,120,32,.28);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2.2rem;
+        }
+        .step-ico svg {
+            width: 22px; height: 22px;
+            stroke: var(--amber);
+            fill: none;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .step-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.65rem;
+            font-weight: 400;
+            color: var(--cream);
+            margin-bottom: 1rem;
+        }
+        .step-desc {
+            font-size: .82rem;
+            line-height: 1.85;
+            color: var(--cream-dim);
+        }
+
+        /* ─── PRODUCT ─────────────────────────── */
+        .product {
+            background: var(--bg3);
+            position: relative;
+            overflow: hidden;
+        }
+        .product::before {
+            content:'';
+            position: absolute;
+            top: -250px; right: -250px;
+            width: 700px; height: 700px;
+            background: radial-gradient(circle, rgba(196,120,32,.055) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 7rem;
+            align-items: center;
+        }
+
+        .pimg-wrap { position: relative; }
+        .pimg-wrap img {
+            width: 100%;
+            height: 620px;
+            object-fit: cover;
+            object-position: center 20%;
+            filter: brightness(.6) saturate(.7);
+            display: block;
+        }
+        .pbadge {
+            position: absolute;
+            top: 2rem; left: 2rem;
+            background: rgba(196,120,32,.15);
+            border: 1px solid rgba(196,120,32,.38);
+            padding: .5rem 1.1rem;
+            font-size: .58rem;
+            letter-spacing: .25em;
+            text-transform: uppercase;
+            color: var(--amber-lit);
+        }
+
+        .pfeatures { margin-top: 3rem; }
+
+        .pfeat {
+            display: grid;
+            grid-template-columns: 72px 1fr;
+            gap: 1.8rem;
+            align-items: start;
+            padding: 1.8rem 0;
+            border-bottom: 1px solid rgba(255,255,255,.055);
+        }
+        .pfeat-n {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 300;
+            color: var(--amber-lit);
+            letter-spacing: -.01em;
+            line-height: 1;
+            opacity: .85;
+        }
+        .pfeat-body h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.12rem;
+            font-weight: 500;
+            color: var(--cream);
+            margin-bottom: .45rem;
+        }
+        .pfeat-body p {
+            font-size: .8rem;
+            color: var(--cream-dim);
+            line-height: 1.75;
+        }
+
+        /* spec strip below product */
+        .spec-strip {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            gap: 1px;
+            background: rgba(196,120,32,.1);
+            margin-top: 5rem;
+        }
+        .spec-item {
+            background: var(--bg3);
+            padding: 2rem 2.5rem;
+            border-right: 1px solid rgba(196,120,32,.08);
+        }
+        .spec-item:last-child { border-right: none; }
+        .spec-v {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--amber-lit);
+        }
+        .spec-k {
+            font-size: .6rem;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: var(--cream-dim);
+            margin-top: .3rem;
+        }
+
+        /* ─── STATS ───────────────────────────── */
+        .stats {
+            background: var(--bg2);
+            text-align: center;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            gap: 1px;
+            background: rgba(196,120,32,.1);
+            margin-top: 4.5rem;
+        }
+        .stat-item {
+            background: var(--bg2);
+            padding: 3.5rem 2rem;
+        }
+        .stat-n {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.5rem,4vw,4.2rem);
+            font-weight: 300;
+            color: var(--amber-lit);
+            line-height: 1;
+        }
+        .stat-u { font-size: 1.8rem; color: var(--amber); }
+        .stat-d {
+            margin-top: .9rem;
+            font-size: .65rem;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: var(--cream-dim);
+        }
+
+        /* ─── TESTIMONIALS ────────────────────── */
+        .testi { background: var(--bg); }
+
+        .testi-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 2rem;
+            margin-top: 4.5rem;
+        }
+
+        .tcard {
+            background: var(--bg2);
+            border: 1px solid rgba(255,255,255,.05);
+            padding: 2.8rem;
+            position: relative;
+            transition: border-color .35s, transform .35s;
+        }
+        .tcard:hover {
+            border-color: rgba(196,120,32,.28);
+            transform: translateY(-5px);
+        }
+        .tcard::before {
+            content:'"';
+            position: absolute;
+            top: 1rem; right: 1.8rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 5rem;
+            color: rgba(196,120,32,.1);
+            line-height: 1;
+        }
+
+        .tcard-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            font-style: italic;
+            font-weight: 300;
+            line-height: 1.8;
+            color: var(--cream-dim);
+        }
+
+        .tcard-author {
+            margin-top: 2.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .t-avatar {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 1px solid rgba(196,120,32,.3);
+            flex-shrink: 0;
+        }
+        .t-avatar img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .t-name {
+            font-size: .76rem;
+            font-weight: 500;
+            color: var(--cream);
+            letter-spacing: .04em;
+        }
+        .t-role {
+            font-size: .63rem;
+            color: var(--cream-dim);
+            margin-top: .15rem;
+        }
+
+        /* ─── CTA ─────────────────────────────── */
+        .cta {
+            position: relative;
+            overflow: hidden;
+            padding: 10rem 8%;
+            text-align: center;
+        }
+        .cta-bg {
+            position: absolute;
+            inset: 0;
+            background-image: url('https://images.unsplash.com/photo-1449059873988-7e32f5b4d0a4?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center 40%;
+            filter: brightness(.18) saturate(.5);
+        }
+        .cta-vignette {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(8,6,3,.7) 100%);
+        }
+        .cta-content { position: relative; z-index: 2; }
+
+        .cta-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3rem, 6vw, 6.5rem);
+            font-weight: 300;
+            color: var(--cream);
+            line-height: 1.08;
+            margin-bottom: 1.8rem;
+        }
+        .cta-title em { font-style:italic; color: var(--amber-lit); }
+
+        .cta-sub {
+            font-size: .88rem;
+            color: var(--cream-dim);
+            max-width: 480px;
+            margin: 0 auto 3rem;
+            line-height: 1.85;
+        }
+
+        .cta-btns {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ─── FOOTER ──────────────────────────── */
+        footer {
+            background: #040302;
+            border-top: 1px solid rgba(196,120,32,.1);
+            padding: 4.5rem 8% 2.5rem;
+        }
+        .ft-top {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid rgba(255,255,255,.04);
+        }
+        .ft-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: .18em;
+            color: var(--cream);
+            margin-bottom: 1rem;
+        }
+        .ft-brand em { color: var(--amber); font-style: normal; }
+        .ft-tag {
+            font-size: .8rem;
+            color: var(--cream-dim);
+            line-height: 1.75;
+            max-width: 270px;
+        }
+        .ft-col h5 {
+            font-size: .58rem;
+            letter-spacing: .28em;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-bottom: 1.6rem;
+        }
+        .ft-col ul { list-style: none; display: flex; flex-direction: column; gap: .75rem; }
+        .ft-col ul li a {
+            font-size: .8rem;
+            color: var(--cream-dim);
+            text-decoration: none;
+            transition: color .3s;
+        }
+        .ft-col ul li a:hover { color: var(--cream); }
+
+        .ft-bot {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ft-copy { font-size: .68rem; color: var(--cream-faint); letter-spacing: .05em; }
+
+        /* ─── SCROLL INDICATOR ────────────────── */
+        .scroll-ind {
+            position: absolute;
+            bottom: 5.5rem;
+            left: 8%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .5rem;
+            z-index: 2;
+        }
+        .scroll-ind-line {
+            width: 1px; height: 50px;
+            background: linear-gradient(to bottom, var(--amber), transparent);
+            animation: scroll-line 2s ease-in-out infinite;
+        }
+        @keyframes scroll-line {
+            0%   { transform: scaleY(0); transform-origin: top; opacity: 1; }
+            50%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+            51%  { transform: scaleY(1); transform-origin: bottom; opacity: 1; }
+            100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+        }
+        .scroll-ind-txt {
+            writing-mode: vertical-rl;
+            font-size: .52rem;
+            letter-spacing: .3em;
+            text-transform: uppercase;
+            color: var(--amber-dim);
+        }
+
+        /* divider */
+        .amber-line {
+            border: none;
+            border-top: 1px solid rgba(196,120,32,.15);
+            margin: 0;
+        }
+
+
+        /* ─── RESPONSIVE ─────────────────────── */
+
+        /* Tablet (≤ 1024px) */
+        @media (max-width: 1024px) {
+            .nav-links { gap: 1.4rem; }
+            .nav-links a { font-size: .65rem; }
+            .hero-content { padding: 6rem 6% 130px; }
+            .corner.tl { top:10%; left:5%; }
+            .corner.tr { top:10%; right:5%; }
+            .corner.bl { bottom:22%; left:5%; }
+            .corner.br { bottom:22%; right:5%; }
+            .hero-title { font-size: clamp(4rem, 9vw, 8rem); }
+        }
+
+        /* Mobile (≤ 768px) — stats collapse to 2×2 */
+        @media (max-width: 768px) {
+            #nav { padding: 1.1rem 5%; }
+            .nav-links { display: none; }
+            .nav-cta { padding: .45rem 1rem; font-size: .6rem; }
+
+            .hero-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .hstat {
+                padding: .9rem 1.4rem;
+                border-right: 1px solid rgba(196,120,32,.12);
+            }
+            /* remove right border on every 2nd cell */
+            .hstat:nth-child(2),
+            .hstat:nth-child(4) { border-right: none; }
+            /* add top border to 2nd row */
+            .hstat:nth-child(3),
+            .hstat:nth-child(4) { border-top: 1px solid rgba(196,120,32,.12); }
+            .hstat-n { font-size: 1.5rem; }
+            .hstat-l { font-size: .55rem; }
+
+            /* more bottom padding to clear 2-row stats (~130px) */
+            .hero-content { padding: 5rem 6% 180px; }
+
+            .hero-title { font-size: clamp(3.2rem, 13vw, 5.5rem); }
+            .hero-sub   { margin-top: 1.2rem; font-size: .82rem; max-width: 100%; }
+            .hero-actions { margin-top: 1.6rem; gap: 1.2rem; }
+
+            /* keep bottom corners above the now-taller stats strip */
+            .corner.bl { bottom: 28%; }
+            .corner.br { bottom: 28%; }
+
+            .scroll-ind { display: none; }
+        }
+
+        /* Small mobile (≤ 480px) */
+        @media (max-width: 480px) {
+            .hero-title { font-size: clamp(3rem, 15vw, 4.5rem); }
+            .eyebrow    { margin-bottom: .8rem; font-size: .55rem; }
+            .hero-sub   { display: none; }   /* hide subtitle to save vertical space */
+            .hero-actions { margin-top: 1.2rem; }
+            .btn-primary { padding: .85rem 1.8rem; font-size: .68rem; }
+        }
+
+        /* Short viewport height (≤ 700px) — landscape phones, small laptops */
+        @media (max-height: 700px) {
+            .hero-content { padding: 4.5rem 8% 110px; }
+            .hero-title   { font-size: clamp(2.8rem, 7.5vw, 5.5rem); }
+            .hero-sub     { margin-top: .9rem; font-size: .8rem; line-height: 1.7; }
+            .hero-actions { margin-top: 1.2rem; }
+            .eyebrow      { margin-bottom: 1rem; }
+            .hstat        { padding: 1rem 1.8rem; }
+        }
+
+        /* Very short viewport (≤ 580px height) */
+        @media (max-height: 580px) {
+            .hero-sub { display: none; }
+            .eyebrow  { margin-bottom: .7rem; }
+            .hero-content { padding: 3.5rem 8% 100px; }
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- ══════ NAV ══════ -->
+<nav id="nav">
+    <a class="nav-logo" href="#">H<em>C</em>S</a>
+    <ul class="nav-links">
+        <li><a href="#about">Technology</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#product">Product</a></li>
+        <li><a href="#stats">Results</a></li>
+        <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="nav-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Request Demo</button>
+</nav>
+
+
+<!-- ══════ HERO ══════ -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-scan"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-beam"></div>
+
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+    <!-- <div class="det-box"></div> -->
+
+    <div class="scroll-ind">
+        <div class="scroll-ind-line"></div>
+        <span class="scroll-ind-txt">Scroll</span>
+    </div>
+
+    <div class="hero-content">
+        <div class="eyebrow">
+            <span class="ldot"></span>
+            Equine Intelligence System
+        </div>
+        <h1 class="hero-title">
+            Horse<br><em>Care</em><br>System
+        </h1>
+        <p class="hero-sub">
+            AI-powered monitoring that watches over your horse 24 hours a day — tracking every heartbeat, every temperature shift, through computer vision and precision biosensors worn at the neck.
+        </p>
+        <div class="hero-actions">
+            <a href="#product" class="btn-primary">Explore the System</a>
+            <a href="#how" class="btn-ghost">How It Works</a>
+        </div>
+    </div>
+
+    <div class="hero-stats">
+        <div class="hstat">
+            <div class="hstat-n">±0.1°C</div>
+            <div class="hstat-l">Temperature Accuracy</div>
+        </div>
+        <div class="hstat">
+            <div class="hstat-n">24 / 7</div>
+            <div class="hstat-l">Continuous Monitoring</div>
+        </div>
+        <div class="hstat">
+            <div class="hstat-n">&lt; 3 s</div>
+            <div class="hstat-l">Alert Response Time</div>
+        </div>
+        <div class="hstat">
+            <div class="hstat-n">99.4%</div>
+            <div class="hstat-l">Detection Accuracy</div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════ INTRO ══════ -->
+<section class="intro" id="about">
+    <div class="reveal">
+        <div class="lbl">The Technology</div>
+        <h2 class="sec-title">Intelligence that<br>never <em>sleeps</em></h2>
+        <p class="intro-body">
+            HCS merges two streams of intelligence — a computer vision layer that reads posture, gait, and behavior in real time, and a precision biosensor collar placed around your horse's neck that captures heart rate and core temperature continuously.
+        </p>
+        <p class="intro-body" style="margin-top:.9rem;">
+            Our AI models are trained on thousands of hours of equine health data. They detect subtle physiological shifts before they become serious conditions, sending instant alerts to your phone and your vet.
+        </p>
+        <div class="tech-badges">
+            <div class="badge-item">
+                <div class="badge-val">CV</div>
+                <div class="badge-lbl">Computer Vision</div>
+            </div>
+            <div class="badge-item">
+                <div class="badge-val">IoT</div>
+                <div class="badge-lbl">Biosensors</div>
+            </div>
+            <div class="badge-item">
+                <div class="badge-val">AI</div>
+                <div class="badge-lbl">Deep Learning</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="intro-visual reveal d1">
+        <div class="img-frame">
+            <img src="https://images.pexels.com/photos/635499/pexels-photo-635499.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Horse portrait with AI overlay">
+            <!-- CV detection points -->
+            <div class="cv-pt" data-l="NECK SENSOR" style="top:58%;left:38%;"></div>
+            <div class="cv-pt" data-l="EYE TRACKING" style="top:28%;left:58%;"></div>
+            <div class="cv-pt" data-l="POSTURE MESH" style="top:74%;left:62%;"></div>
+        </div>
+        <!-- Floating vitals card -->
+        <div class="vitals-float">
+            <div class="vf-title">
+                <span class="ldot"></span> Live Vitals — Eclipse
+            </div>
+            <div class="vf-row">
+                <span class="vf-key">Heart Rate</span>
+                <span class="vf-val">46 BPM</span>
+            </div>
+            <div class="vf-row">
+                <span class="vf-key">Temperature</span>
+                <span class="vf-val">37.6 °C</span>
+            </div>
+            <div class="vf-row">
+                <span class="vf-key">Resp. Rate</span>
+                <span class="vf-val">14 / min</span>
+            </div>
+            <div class="vf-row">
+                <span class="vf-key">Activity</span>
+                <span class="vf-val">Resting</span>
+            </div>
+            <div class="vf-row">
+                <span class="vf-key">Status</span>
+                <span class="vf-val">Normal</span>
+            </div>
+            <!-- ECG -->
+            <div class="ecg-wrap">
+                <svg class="ecg-svg" viewBox="0 0 800 36" preserveAspectRatio="none">
+                    <path d="M0,18 L40,18 L55,18 L65,4 L72,32 L79,4 L88,18 L110,18
+                             L150,18 L165,18 L175,4 L182,32 L189,4 L198,18 L220,18
+                             L260,18 L275,18 L285,4 L292,32 L299,4 L308,18 L330,18
+                             L370,18 L385,18 L395,4 L402,32 L409,4 L418,18 L440,18
+                             L480,18 L495,18 L505,4 L512,32 L519,4 L528,18 L550,18
+                             L590,18 L605,18 L615,4 L622,32 L629,4 L638,18 L660,18
+                             L700,18 L715,18 L725,4 L732,32 L739,4 L748,18 L770,18 L800,18"
+                          stroke="#4E9468" stroke-width="1.5" fill="none"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<hr class="amber-line">
+
+
+<!-- ══════ HOW IT WORKS ══════ -->
+<section class="how" id="how">
+    <div class="how-head reveal">
+        <div>
+            <div class="lbl">Process</div>
+            <h2 class="sec-title">How <em>HCS</em> works</h2>
+        </div>
+        <p class="how-head-note">Three layers of intelligence operating in concert to protect what matters most to you.</p>
+    </div>
+
+    <div class="steps">
+        <div class="step reveal">
+            <span class="step-n">01</span>
+            <div class="step-ico">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
+                </svg>
+            </div>
+            <h3 class="step-title">Computer Vision Layer</h3>
+            <p class="step-desc">Stable-mounted cameras continuously monitor posture, gait, movement patterns, and behavioral cues. Our vision models are trained specifically on equine anatomy and can detect distress, lameness, or restlessness invisible to the human eye.</p>
+        </div>
+        <div class="step reveal d1">
+            <span class="step-n">02</span>
+            <div class="step-ico">
+                <svg viewBox="0 0 24 24">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+            </div>
+            <h3 class="step-title">Biosensor Data Stream</h3>
+            <p class="step-desc">The HCS Collar — worn lightly around the neck — continuously streams heart rate, core body temperature, respiratory rate, and 6-axis motion. Medical-grade sensors calibrated for equine physiology. No shaving, no adhesive patches.</p>
+        </div>
+        <div class="step reveal d2">
+            <span class="step-n">03</span>
+            <div class="step-ico">
+                <svg viewBox="0 0 24 24">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+            </div>
+            <h3 class="step-title">AI Analysis & Alert</h3>
+            <p class="step-desc">Both data streams merge in our neural network, which runs a continuous health assessment every 3 seconds. Any anomaly — a fever developing, an irregular heart pattern, abnormal inactivity — triggers an instant alert to your phone and your vet.</p>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════ PRODUCT ══════ -->
+<section class="product" id="product">
+    <div class="product-grid">
+        <div class="pimg-wrap reveal">
+            <img src="https://images.unsplash.com/photo-1553284966-19b8815c7817?auto=format&fit=crop&w=900&q=85" alt="HCS Sensor Collar">
+            <div class="pbadge">HCS Collar Sensor — Gen 2</div>
+        </div>
+
+        <div class="reveal d1">
+            <div class="lbl">The Device</div>
+            <h2 class="sec-title">Precision engineered<br>for <em>equine life</em></h2>
+            <p style="margin-top:1.8rem; font-size:.88rem; line-height:1.88; color:var(--cream-dim);">
+                Designed around the horse — not adapted from human wearables. The HCS Collar is lightweight, fully waterproof, and built to endure the stable environment. Your horse won't know it's there.
+            </p>
+
+            <div class="pfeatures">
+                <div class="pfeat">
+                    <div class="pfeat-n">01</div>
+                    <div class="pfeat-body">
+                        <h4>Optical Heart Rate Sensor</h4>
+                        <p>Medical-grade PPG sensor tuned for equine coat thickness and pigmentation variation. Delivers ±2 BPM accuracy across all coat colors and conditions.</p>
+                    </div>
+                </div>
+                <div class="pfeat">
+                    <div class="pfeat-n">02</div>
+                    <div class="pfeat-body">
+                        <h4>Infrared Temperature Array</h4>
+                        <p>Continuous sub-surface body temperature measurement. Catches fever onset hours before external symptoms appear — when early treatment matters most.</p>
+                    </div>
+                </div>
+                <div class="pfeat">
+                    <div class="pfeat-n">03</div>
+                    <div class="pfeat-body">
+                        <h4>6-Axis Motion Intelligence</h4>
+                        <p>Accelerometer and gyroscope capture movement quality to distinguish rest, walk, trot, and canter — and flag lameness patterns, colic restlessness, or irregular lying behavior.</p>
+                    </div>
+                </div>
+                <div class="pfeat">
+                    <div class="pfeat-n">04</div>
+                    <div class="pfeat-body">
+                        <h4>72-Hour Battery + Dock</h4>
+                        <p>Magnetic charging dock mounts on any stable post. Swapping collars takes under 10 seconds. Always covered.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spec strip -->
+    <div class="spec-strip reveal">
+        <div class="spec-item">
+            <div class="spec-v">IP67</div>
+            <div class="spec-k">Waterproof Rating</div>
+        </div>
+        <div class="spec-item">
+            <div class="spec-v">72 hr</div>
+            <div class="spec-k">Battery Life</div>
+        </div>
+        <div class="spec-item">
+            <div class="spec-v">3 sec</div>
+            <div class="spec-k">Sample Interval</div>
+        </div>
+        <div class="spec-item">
+            <div class="spec-v">118 g</div>
+            <div class="spec-k">Device Weight</div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════ STATS ══════ -->
+<section class="stats" id="stats">
+    <div class="reveal">
+        <div class="lbl" style="justify-content:center;">By The Numbers</div>
+        <h2 class="sec-title" style="text-align:center;">Results that <em>speak</em></h2>
+    </div>
+    <div class="stats-grid">
+        <div class="stat-item reveal">
+            <div class="stat-n"><span class="counter" data-target="2400">0</span><span class="stat-u">+</span></div>
+            <div class="stat-d">Horses Monitored</div>
+        </div>
+        <div class="stat-item reveal d1">
+            <div class="stat-n"><span class="counter" data-target="98">0</span><span class="stat-u">%</span></div>
+            <div class="stat-d">Early Detection Rate</div>
+        </div>
+        <div class="stat-item reveal d2">
+            <div class="stat-n"><span class="counter" data-target="340">0</span><span class="stat-u">+</span></div>
+            <div class="stat-d">Stables Worldwide</div>
+        </div>
+        <div class="stat-item reveal d3">
+            <div class="stat-n"><span class="counter" data-target="47">0</span><span class="stat-u">%</span></div>
+            <div class="stat-d">Fewer Vet Emergencies</div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════ TESTIMONIALS ══════ -->
+<section class="testi" id="testimonials">
+    <div class="reveal">
+        <div class="lbl">Field Reports</div>
+        <h2 class="sec-title">Trusted by those<br>who <em>know horses</em></h2>
+    </div>
+
+    <div class="testi-grid">
+        <div class="tcard reveal">
+            <p class="tcard-text">"HCS caught a low-grade fever in my mare three hours before she showed any outward signs. The vet confirmed it was the start of a respiratory infection. We treated early. She was back in training within a week."</p>
+            <div class="tcard-author">
+                <div class="t-avatar">
+                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=80&q=80" alt="Sarah W.">
+                </div>
+                <div>
+                    <div class="t-name">Sarah Whitmore</div>
+                    <div class="t-role">Professional Event Rider, United Kingdom</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tcard reveal d1">
+            <p class="tcard-text">"I manage 34 horses across two properties. HCS gives me a single view of all of them from my phone. The morning health digest is the first thing I open every day. It's completely changed how we operate the yard."</p>
+            <div class="tcard-author">
+                <div class="t-avatar">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=80&q=80" alt="Marcus A.">
+                </div>
+                <div>
+                    <div class="t-name">Marcus Alejandro</div>
+                    <div class="t-role">Stable Owner & Breeder, Argentina</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tcard reveal d2">
+            <p class="tcard-text">"The continuous heart rate data during training sessions has been invaluable for performance science. We've built conditioning programs around actual physiological response. Our horses perform better and recover faster."</p>
+            <div class="tcard-author">
+                <div class="t-avatar">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=80&q=80" alt="Dr. Chen">
+                </div>
+                <div>
+                    <div class="t-name">Dr. Mei Chen</div>
+                    <div class="t-role">Equine Performance Scientist, UAE</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════ CTA ══════ -->
+<section class="cta" id="contact">
+    <div class="cta-bg"></div>
+    <div class="cta-vignette"></div>
+    <div class="cta-content reveal">
+        <div class="lbl" style="justify-content:center;">Get Started</div>
+        <h2 class="cta-title">Your horse deserves<br><em>better vigilance</em></h2>
+        <p class="cta-sub">Join over 340 stables worldwide who trust HCS to protect their horses. Start your 30-day free trial — no credit card, no commitment.</p>
+        <div class="cta-btns">
+            <a href="#" class="btn-primary">Start Free Trial</a>
+            <a href="#" class="btn-ghost" style="color:var(--cream-dim);">Schedule a Demo</a>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════ FOOTER ══════ -->
+<footer>
+    <div class="ft-top">
+        <div>
+            <div class="ft-brand">H<em>C</em>S</div>
+            <p class="ft-tag">Equine Intelligence System — AI, computer vision, and precision biosensors working together to protect every horse, every moment.</p>
+        </div>
+        <div class="ft-col">
+            <h5>Product</h5>
+            <ul>
+                <li><a href="#">HCS Collar</a></li>
+                <li><a href="#">Dashboard</a></li>
+                <li><a href="#">Mobile App</a></li>
+                <li><a href="#">Vet Portal</a></li>
+                <li><a href="#">API Access</a></li>
+            </ul>
+        </div>
+        <div class="ft-col">
+            <h5>Company</h5>
+            <ul>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Research</a></li>
+                <li><a href="#">Careers</a></li>
+                <li><a href="#">Press</a></li>
+            </ul>
+        </div>
+        <div class="ft-col">
+            <h5>Support</h5>
+            <ul>
+                <li><a href="#">Documentation</a></li>
+                <li><a href="#">Vet Partners</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="ft-bot">
+        <span class="ft-copy">© 2025 HCS — Horse Care System. All rights reserved.</span>
+        <span class="ft-copy">Built with precision. Trusted by equestrians.</span>
+    </div>
+</footer>
+
+
+<script>
+    // ── Nav scroll state
+    const nav = document.getElementById('nav');
+    const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 60);
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // ── Intersection observer for .reveal
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // ── Animated counters
+    const counterIO = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            const el = e.target;
+            const target = parseInt(el.dataset.target);
+            const duration = 1800;
+            const fps = 60;
+            const steps = duration / (1000 / fps);
+            let current = 0;
+            const step = target / steps;
+            const tick = () => {
+                current = Math.min(current + step, target);
+                el.textContent = Math.floor(current).toLocaleString();
+                if (current < target) requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+            counterIO.unobserve(el);
+        });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.counter').forEach(el => counterIO.observe(el));
+
+    // ── Subtle parallax on hero-bg
+    const heroBg = document.querySelector('.hero-bg');
+    window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        if (y < window.innerHeight) {
+            heroBg.style.transform = `scale(1.06) translateY(${y * 0.25}px)`;
+        }
+    }, { passive: true });
+</script>
+</body>
+</html>
