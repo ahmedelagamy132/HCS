@@ -78,7 +78,7 @@
     .sb-nav::-webkit-scrollbar-thumb { background: var(--amber-dim); }
 
     .nav-section {
-      font-size: .55rem;
+      font-size: .65rem;
       letter-spacing: .28em;
       text-transform: uppercase;
       color: var(--cream-faint);
@@ -91,7 +91,7 @@
       gap: .85rem;
       padding: .72rem 1.8rem;
       cursor: pointer;
-      font-size: .68rem;
+      font-size: .80rem;
       font-weight: 400;
       letter-spacing: .14em;
       text-transform: uppercase;
@@ -107,14 +107,14 @@
       background: rgba(196,120,32,.08);
       border-left-color: var(--amber);
     }
-    .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: .65; }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: .65; }
     .nav-item.active svg { opacity: 1; }
 
     .nav-badge {
       margin-left: auto;
       background: rgba(196,120,32,.18);
       color: var(--amber);
-      font-size: .48rem;
+      font-size: .65rem;
       letter-spacing: .06em;
       padding: .15rem .5rem;
       border: 1px solid rgba(196,120,32,.25);
@@ -140,7 +140,7 @@
       font-size: 1rem; font-weight: 500; color: var(--amber);
       flex-shrink: 0;
     }
-    .user-name { font-size: .68rem; font-weight: 400; color: var(--cream); }
+    .user-name { font-size: .80rem; font-weight: 400; color: var(--cream); }
     .user-role { font-size: .52rem; letter-spacing: .1em; text-transform: uppercase; color: var(--cream-faint); margin-top: .12rem; }
 
     /* ─── MAIN ─────────────────────────────── */
@@ -166,7 +166,7 @@
       border: 1px solid rgba(196,120,32,.18);
       color: var(--cream);
       padding: .48rem .9rem .48rem 2.1rem;
-      font-family: 'Jost', sans-serif; font-size: .68rem; font-weight: 300; letter-spacing: .07em;
+      font-family: 'Jost', sans-serif; font-size: .80rem; font-weight: 300; letter-spacing: .07em;
       width: 210px; outline: none;
       transition: border-color .2s;
     }
@@ -349,7 +349,7 @@
     .tbl-search {
       background: var(--bg3); border: 1px solid rgba(196,120,32,.18);
       color: var(--cream); padding: .52rem .9rem;
-      font-family: 'Jost', sans-serif; font-size: .68rem; font-weight: 300; letter-spacing: .06em;
+      font-family: 'Jost', sans-serif; font-size: .80rem; font-weight: 300; letter-spacing: .06em;
       outline: none; flex: 1; max-width: 280px; transition: border-color .2s;
     }
     .tbl-search:focus { border-color: var(--amber); }
@@ -366,7 +366,7 @@
     .tbl-wrap::-webkit-scrollbar { height: 3px; }
     .tbl-wrap::-webkit-scrollbar-thumb { background: var(--amber-dim); }
 
-    table.dt { width: 100%; border-collapse: collapse; font-size: .68rem; }
+    table.dt { width: 100%; border-collapse: collapse; font-size: .80rem; }
     table.dt thead th {
       text-align: left; padding: .78rem 1rem;
       font-size: .52rem; font-weight: 400; letter-spacing: .2em; text-transform: uppercase;
@@ -484,7 +484,7 @@
     .report-icon { color: var(--amber); margin-bottom: .8rem; }
     .report-name { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--cream); margin-bottom: .3rem; }
     .report-desc { font-size: .62rem; color: var(--cream-dim); line-height: 1.7; }
-    .report-tag { display: inline-block; margin-top: .8rem; font-size: .48rem; letter-spacing: .14em; text-transform: uppercase; color: var(--amber-dim); border: 1px solid var(--amber-dim); padding: .15rem .5rem; }
+    .report-tag { display: inline-block; margin-top: .8rem; font-size: .65rem; letter-spacing: .14em; text-transform: uppercase; color: var(--amber-dim); border: 1px solid var(--amber-dim); padding: .15rem .5rem; }
 
     /* ─── SETTINGS ─────────────────────────── */
     .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; }
@@ -535,10 +535,10 @@
         </div>
       </div>
       <div class="stat-row">
-        <div class="stat-cell"><div class="stat-n">14</div><div class="stat-l">Total Admins</div></div>
-        <div class="stat-cell"><div class="stat-n">3</div><div class="stat-l">Super Admins</div></div>
-        <div class="stat-cell"><div class="stat-n">11</div><div class="stat-l">Staff Admins</div></div>
-        <div class="stat-cell"><div class="stat-n">8</div><div class="stat-l">Active Today</div></div>
+        <div class="stat-cell"><div class="stat-n" id="stat-total-admins">-</div><div class="stat-l">Total Admins</div></div>
+        <div class="stat-cell"><div class="stat-n" id="stat-super-admins">-</div><div class="stat-l">Super Admins</div></div>
+        <div class="stat-cell"><div class="stat-n" id="stat-staff-admins">-</div><div class="stat-l">Staff Admins</div></div>
+        <div class="stat-cell"><div class="stat-n" id="stat-active-admins">-</div><div class="stat-l">Active Today</div></div>
       </div>
       <div class="tbl-controls">
         <input class="tbl-search" type="text" placeholder="Search admins...">
@@ -546,7 +546,7 @@
       </div>
       <div class="tbl-wrap">
         <table class="dt">
-          <thead><tr><th>ID</th><th>Name</th><th>Role</th><th>Email</th><th>Permissions</th><th>Last Login</th><th>Status</th><th>Actions</th></tr></thead>
+          <thead><tr><th>ID</th><th>Name</th><th>Role</th><th>Email</th><th>Permissions</th><th>Last Login</th><th>Actions</th></tr></thead>
           <tbody id="admins-tbody"></tbody>
         </table>
       </div>
@@ -558,6 +558,53 @@
 
 
 
+
+<!-- Modal CSS -->
+<style>
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(8, 6, 3, 0.85); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; backdrop-filter: blur(4px); }
+.modal-overlay.active { opacity: 1; pointer-events: all; }
+.modal { background: var(--bg2); width: 480px; max-width: 90vw; border: 1px solid rgba(196,120,32,.2); border-radius: 12px; padding: 2rem; transform: translateY(20px); transition: transform .3s; }
+.modal-overlay.active .modal { transform: translateY(0); }
+.modal-header { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--amber); margin-bottom: 1.5rem; }
+.modal-form-group { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.2rem; }
+.modal-label { font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; color: var(--cream-faint); }
+.modal-input, .modal-select { background: var(--bg3); border: 1px solid rgba(196,120,32,.18); color: var(--cream); padding: .6rem; border-radius: 6px; font-family: 'Jost', sans-serif; outline: none; transition: border-color .2s; }
+.modal-input:focus, .modal-select:focus { border-color: var(--amber); }
+.modal-footer { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem; }
+.modal-btn { background: var(--bg3); color: var(--cream); border: 1px solid rgba(196,120,32,.3); padding: .5rem 1.2rem; border-radius: 6px; cursor: pointer; transition: all .2s; font-family: 'Jost', sans-serif; }
+.modal-btn:hover { background: rgba(196,120,32,.1); }
+.modal-btn-primary { background: var(--amber); color: var(--bg); font-weight: 500; border: none; }
+.modal-btn-primary:hover { background: var(--amber-lit); }
+</style>
+
+<!-- Add Admin Modal -->
+<div class="modal-overlay" id="add-admin-modal">
+  <div class="modal">
+    <div class="modal-header">Add New Admin</div>
+    <form id="add-admin-form">
+      <div class="modal-form-group">
+        <label class="modal-label">Full Name</label>
+        <input type="text" name="full_name" class="modal-input" required>
+      </div>
+      <div class="modal-form-group">
+        <label class="modal-label">Email</label>
+        <input type="email" name="email" class="modal-input" required>
+      </div>
+      <div class="modal-form-group">
+        <label class="modal-label">Role</label>
+        <input type="text" name="role" class="modal-input" placeholder="e.g. view_only, system_admin">
+      </div>
+      <div class="modal-form-group">
+        <label class="modal-label">Temporary Password</label>
+        <input type="password" name="password" class="modal-input" required>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="modal-btn" onclick="closeAdminModal()">Cancel</button>
+        <button type="submit" class="modal-btn modal-btn-primary">Save Admin</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <script src="/admin/js/layout.js"></script>
 

@@ -1,0 +1,5 @@
+-- ============================================================
+-- HCS — Equine Intelligence System
+-- 06_tables_iot.sql  |  IoT tables removed
+-- devices, sensor_readings, cv_events dropped — not used by portal
+-- ============================================================

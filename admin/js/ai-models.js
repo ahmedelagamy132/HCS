@@ -6,6 +6,16 @@ async function initPage() {
 
     const grid = document.getElementById("model-grid");
     
+    // Update stats dynamically
+    const elTotal = document.getElementById("stat-total-models");
+    if (elTotal) elTotal.innerText = models.length;
+    
+    const elActive = document.getElementById("stat-active-models");
+    if (elActive) elActive.innerText = models.filter(m => m.status === 'Running').length;
+    
+    const elTraining = document.getElementById("stat-training-models");
+    if (elTraining) elTraining.innerText = models.filter(m => m.status === 'Training').length;
+    
     // We will use a generic icon for dynamically loaded models
     const ICONS = [
       '<path d="M2 2h12v12H2z" /><circle cx="8" cy="8" r="3" />',
@@ -18,13 +28,12 @@ async function initPage() {
 
     if (grid && models.length) {
       grid.innerHTML = models.map((m, i) => `
-        <div class="model-card" style="cursor:pointer; transition: transform 0.2s, border-color 0.2s;" onmousedown="this.style.transform='scale(0.98)'; this.style.borderColor='var(--amber-lit)';" onmouseup="this.style.transform='scale(1)';" onclick="openModelTesting(this, '\${m.name}', '\${m.category}', '\${m.version}')">
+          <div class="model-card" style="cursor:pointer; transition: transform 0.2s, border-color 0.2s;" onmousedown="this.style.transform='scale(0.98)'; this.style.borderColor='var(--amber-lit)';" onmouseup="this.style.transform='scale(1)';" onclick="openModelTesting(this, '${m.name}', '${m.category}', '${m.version}', '${m.id}')">
           <div class="model-icon-wrap">
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">${ICONS[i % ICONS.length]}</svg>
           </div>
           <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.4rem">
             <div class="model-name">${m.name}</div>
-            <span class="badge ${m.status === 'Running' ? 'active' : 'inactive'}" style="margin-top:.2rem">${m.status}</span>
           </div>
           <div class="model-desc">
             Category: <strong>${m.category}</strong><br/>

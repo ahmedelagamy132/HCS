@@ -113,8 +113,8 @@ CREATE INDEX idx_analyses_model           ON ai_analyses(model_id, created_at DE
 CREATE INDEX idx_analyses_horse           ON ai_analyses(horse_id, created_at DESC);
 CREATE INDEX idx_analyses_type            ON ai_analyses(analysis_type);
 CREATE INDEX idx_analyses_status          ON ai_analyses(status);
-CREATE INDEX idx_analyses_today           ON ai_analyses(created_at DESC)
-    WHERE created_at >= CURRENT_DATE;
+-- Removed crashing index
+    
 -- GIN index for querying result JSONB
 CREATE INDEX idx_analyses_result_gin      ON ai_analyses USING gin(result);
 

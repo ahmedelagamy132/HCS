@@ -78,7 +78,7 @@
     .sb-nav::-webkit-scrollbar-thumb { background: var(--amber-dim); }
 
     .nav-section {
-      font-size: .55rem;
+      font-size: .65rem;
       letter-spacing: .28em;
       text-transform: uppercase;
       color: var(--cream-faint);
@@ -91,7 +91,7 @@
       gap: .85rem;
       padding: .72rem 1.8rem;
       cursor: pointer;
-      font-size: .68rem;
+      font-size: .80rem;
       font-weight: 400;
       letter-spacing: .14em;
       text-transform: uppercase;
@@ -107,14 +107,14 @@
       background: rgba(196,120,32,.08);
       border-left-color: var(--amber);
     }
-    .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: .65; }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: .65; }
     .nav-item.active svg { opacity: 1; }
 
     .nav-badge {
       margin-left: auto;
       background: rgba(196,120,32,.18);
       color: var(--amber);
-      font-size: .48rem;
+      font-size: .65rem;
       letter-spacing: .06em;
       padding: .15rem .5rem;
       border: 1px solid rgba(196,120,32,.25);
@@ -140,7 +140,7 @@
       font-size: 1rem; font-weight: 500; color: var(--amber);
       flex-shrink: 0;
     }
-    .user-name { font-size: .68rem; font-weight: 400; color: var(--cream); }
+    .user-name { font-size: .80rem; font-weight: 400; color: var(--cream); }
     .user-role { font-size: .52rem; letter-spacing: .1em; text-transform: uppercase; color: var(--cream-faint); margin-top: .12rem; }
 
     /* ─── MAIN ─────────────────────────────── */
@@ -166,7 +166,7 @@
       border: 1px solid rgba(196,120,32,.18);
       color: var(--cream);
       padding: .48rem .9rem .48rem 2.1rem;
-      font-family: 'Jost', sans-serif; font-size: .68rem; font-weight: 300; letter-spacing: .07em;
+      font-family: 'Jost', sans-serif; font-size: .80rem; font-weight: 300; letter-spacing: .07em;
       width: 210px; outline: none;
       transition: border-color .2s;
     }
@@ -349,7 +349,7 @@
     .tbl-search {
       background: var(--bg3); border: 1px solid rgba(196,120,32,.18);
       color: var(--cream); padding: .52rem .9rem;
-      font-family: 'Jost', sans-serif; font-size: .68rem; font-weight: 300; letter-spacing: .06em;
+      font-family: 'Jost', sans-serif; font-size: .80rem; font-weight: 300; letter-spacing: .06em;
       outline: none; flex: 1; max-width: 280px; transition: border-color .2s;
     }
     .tbl-search:focus { border-color: var(--amber); }
@@ -366,7 +366,7 @@
     .tbl-wrap::-webkit-scrollbar { height: 3px; }
     .tbl-wrap::-webkit-scrollbar-thumb { background: var(--amber-dim); }
 
-    table.dt { width: 100%; border-collapse: collapse; font-size: .68rem; }
+    table.dt { width: 100%; border-collapse: collapse; font-size: .80rem; }
     table.dt thead th {
       text-align: left; padding: .78rem 1rem;
       font-size: .52rem; font-weight: 400; letter-spacing: .2em; text-transform: uppercase;
@@ -501,7 +501,7 @@
     .report-icon { color: var(--amber); margin-bottom: .8rem; }
     .report-name { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--cream); margin-bottom: .3rem; }
     .report-desc { font-size: .62rem; color: var(--cream-dim); line-height: 1.7; }
-    .report-tag { display: inline-block; margin-top: .8rem; font-size: .48rem; letter-spacing: .14em; text-transform: uppercase; color: var(--amber-dim); border: 1px solid var(--amber-dim); padding: .15rem .5rem; }
+    .report-tag { display: inline-block; margin-top: .8rem; font-size: .65rem; letter-spacing: .14em; text-transform: uppercase; color: var(--amber-dim); border: 1px solid var(--amber-dim); padding: .15rem .5rem; }
 
     /* ─── SETTINGS ─────────────────────────── */
     .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; }
@@ -555,11 +555,11 @@
     .ms-desc { font-size: .6rem; color: var(--cream-dim); line-height: 1.65; letter-spacing: .03em; }
     .ms-meta { display: flex; gap: .8rem; margin-top: .7rem; align-items: center; flex-wrap: wrap; }
     .ms-stat { font-size: .56rem; color: var(--cream-faint); letter-spacing: .06em; }
-    .ms-stat strong { color: var(--amber-lit); font-weight: 400; font-family: 'Cormorant Garamond', serif; font-size: .75rem; }
+    .ms-stat strong { color: var(--amber-lit); font-weight: 400; font-family: 'Cormorant Garamond', serif; font-size: .80rem; }
 
     /* ─── WORKSPACE ───────────────────────── */
     .workspace {
-      display: grid; grid-template-columns: 1fr 380px;
+      display: grid; grid-template-columns: 1fr;
       gap: 1.4rem; align-items: start;
     }
 
@@ -583,7 +583,7 @@
 
     .dz-idle { display: flex; flex-direction: column; align-items: center; gap: .7rem; pointer-events: none; }
     .dz-icon { width: 48px; height: 48px; border: 1px solid rgba(196,120,32,.2); background: var(--bg4); display: flex; align-items: center; justify-content: center; color: var(--amber); }
-    .dz-label { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--cream-dim); }
+    .dz-label { font-size: .80rem; letter-spacing: .1em; text-transform: uppercase; color: var(--cream-dim); }
     .dz-hint { font-size: .58rem; color: var(--cream-faint); letter-spacing: .04em; }
     .dz-formats { display: flex; gap: .5rem; margin-top: .4rem; }
     .dz-fmt { font-size: .44rem; letter-spacing: .1em; text-transform: uppercase; border: 1px solid rgba(196,120,32,.2); color: var(--amber-dim); padding: .12rem .45rem; }
@@ -624,7 +624,7 @@
     .results-panel { display: flex; flex-direction: column; gap: 1.1rem; }
 
     .res-card { background: var(--bg2); border: 1px solid rgba(196,120,32,.12); padding: 1.3rem; }
-    .res-title { font-size: .55rem; letter-spacing: .22em; text-transform: uppercase; color: var(--amber-lit); display: flex; align-items: center; gap: .6rem; margin-bottom: 1rem; padding-bottom: .7rem; border-bottom: 1px solid rgba(196,120,32,.08); }
+    .res-title { font-size: .65rem; letter-spacing: .22em; text-transform: uppercase; color: var(--amber-lit); display: flex; align-items: center; gap: .6rem; margin-bottom: 1rem; padding-bottom: .7rem; border-bottom: 1px solid rgba(196,120,32,.08); }
     .res-title::before { content: ''; display: block; width: 12px; height: 1px; background: var(--amber-lit); }
 
     .res-empty { font-size: .62rem; color: var(--cream-faint); letter-spacing: .04em; text-align: center; padding: 1.5rem 0; opacity: .6; }
@@ -732,10 +732,7 @@
   <!-- Content -->
   <div class="content">
     <div class="tab-view active" id="tab-ai-models" style="display:block">
-    <div class="page-tabs">
-      <div class="pt-item active" onclick="switchAITab('deployed')">All Models</div>
-      <div class="pt-item" onclick="switchAITab('vision')" id="pt-testing" style="display: none;">Model Testing</div>
-    </div>
+    
     
     <div id="tab-deployed" class="pt-content active">
       
@@ -765,6 +762,11 @@
       
       
   <div id="testing-header" style="margin-bottom: 2rem; display: none;">
+<div id="testing-back-btn" onclick="switchAITab('deployed')" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--amber-lit); cursor: pointer; margin-bottom: 1.5rem; transition: opacity 0.2s;" onmousedown="this.style.opacity='0.5';" onmouseup="this.style.opacity='1';">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>
+  Back to All Models
+</div>
+
     <h2 id="tested-model-name" style="font-size: 1.5rem; font-weight: 400; color: var(--cream); margin-bottom: 0.2rem; font-family: 'Cormorant Garamond', serif; letter-spacing: 0.05em;">Model Name</h2>
     <div id="tested-model-meta" style="font-size: 0.65rem; color: var(--cream-dim); letter-spacing: 0.1em; text-transform: uppercase;">Category · Version</div>
   </div>
@@ -776,10 +778,68 @@
           <div class="up-header">
             <div class="up-title">Video Input</div>
             <span id="selected-model-badge" class="badge vision" style="display:none"></span>
-          </div>
+          </div>            </div>  
+  <style>
+    .premium-bezel-outer-p { background: rgba(255,255,255,0.01); border: 1px solid rgba(196,120,32,0.12); border-radius: 1.25rem; padding: 0.375rem; margin: 1.5rem 1.5rem 0; transition: border-color 0.4s cubic-bezier(0.32, 0.72, 0, 1); }
+    .premium-bezel-outer-p:hover { border-color: rgba(196,120,32,0.25); background: rgba(196,120,32,0.02); }
+    .premium-bezel-inner-p { background: rgba(8,6,3,0.8); box-shadow: inset 0 1px 1px rgba(255,255,255,0.03); border-radius: calc(1.25rem - 0.375rem); padding: 1.2rem; position: relative; overflow: hidden; }
+    .pre-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 1rem; }
+    .pre-title-wrap { display: flex; align-items: center; gap: 0.6rem; }
+    .pre-title { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--amber-lit); font-weight: 500; }
+    .premium-toggle { position: relative; display: inline-block; width: 34px; height: 20px; }
+    .premium-toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.05); border: 1px solid rgba(196,120,32,0.15); transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1); border-radius: 20px; }
+    .toggle-slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: var(--cream-dim); transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), background-color 0.4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+    .premium-toggle input:checked + .toggle-slider { background-color: rgba(196,120,32,0.15); border-color: rgba(196,120,32,0.4); }
+    .premium-toggle input:checked + .toggle-slider:before { transform: translateX(14px); background-color: var(--amber-lit); }
+    .pre-controls-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1); opacity: 1; filter: blur(0px); pointer-events: auto; }
+    .pre-controls-grid.disabled { opacity: 0.3; filter: blur(1px); pointer-events: none; transform: translateY(-4px); }
+    .pre-control-item { display: flex; flex-direction: column; gap: 0.5rem; }
+    .pre-control-item label { font-size: 0.55rem; color: var(--cream-dim); letter-spacing: 0.1em; text-transform: uppercase; }
+    .pre-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(196,120,32,0.1); color: var(--cream); padding: 0.55rem 0.8rem; font-family: 'Jost', sans-serif; font-size: 0.75rem; border-radius: 0.5rem; outline: none; transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+    .pre-input:focus { border-color: rgba(196,120,32,0.4); background: rgba(196,120,32,0.05); }
+    select.pre-input { -webkit-appearance: none; -moz-appearance: none; appearance: none; cursor: pointer; background-image: url('data:image/svg+xml;utf8,<svg fill="rgba(196,120,32,0.6)" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position-x: 95%; background-position-y: 50%; padding-right: 2rem; }
+    select.pre-input option { background: var(--bg2); color: var(--cream); }
+  </style>
+
+  <div class="preprocess-settings premium-bezel-outer-p" id="preprocess-settings-block">
+    <div class="premium-bezel-inner-p">
+      <div class="pre-header">
+        <div class="pre-title-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--amber-lit)" stroke-width="1.5"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14v-4z"></path><rect x="3" y="6" width="12" height="12" rx="2" ry="2"></rect></svg>
+          <span class="pre-title">Frame Sequence Extractor</span>
+        </div>
+        <label class="premium-toggle">
+          <input type="checkbox" id="extract-all-frames" checked onchange="document.getElementById('pre-controls').className = this.checked ? 'pre-controls-grid' : 'pre-controls-grid disabled';">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      
+      <div id="pre-controls" class="pre-controls-grid">
+        <div class="pre-control-item">
+          <label>Extraction Interval</label>
+          <input type="number" id="frame-skip-ratio" class="pre-input" value="1.0" min="0.1" step="0.1" title="Seconds between each frame">
+        </div>
+        <div class="pre-control-item">
+          <label>Sequence Limit</label>
+          <input type="number" id="max-frames-limit" class="pre-input" value="25" min="1" step="1" max="100" title="Maximum frames to allow in sequence">
+        </div>
+        <div class="pre-control-item">
+          <label>Render Quality</label>
+          <select id="frame-quality" class="pre-input" title="Scale and JPEG compression quality">
+            <option value="0.4">Low (Faster API)</option>
+            <option value="0.6" selected>Medium (Optimal)</option>
+            <option value="0.8">High (Detailed)</option>
+            <option value="1.0">Maximum</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
 <div class="prompt-input" style="padding: 1.5rem 1.5rem 0;">
   <label style="display:block; font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--amber-lit); margin-bottom: 0.8rem;">Analysis Prompt</label>
-  <textarea id="model-prompt" rows="3" placeholder="Describe what the model should analyse in the video..." style="width: 100%; background: var(--bg3); border: 1px solid rgba(196,120,32,.15); color: var(--cream); padding: 0.8rem 1rem; font-family: 'Jost', sans-serif; font-size: 0.75rem; transition: border-color 0.2s, box-shadow 0.2s; outline: none; resize: vertical; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); border-radius: 4px;"></textarea>
+<textarea id="model-prompt" rows="3" placeholder="Describe what the model should analyse in the video..." style="width: 100%; background: var(--bg3); border: 1px solid rgba(196,120,32,.15); color: var(--cream); padding: 0.8rem 1rem; font-family: 'Jost', sans-serif; font-size: 0.75rem; transition: border-color 0.2s, box-shadow 0.2s; outline: none; resize: vertical; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); border-radius: 4px;">Describe the behavior of the horse in this frame. Be very brief.</textarea>
 </div>
 
 
@@ -792,7 +852,7 @@
                   <path d="M8 21h8M12 17v4"></path>
                 </svg>
               </div>
-              <div class="dz-label">Drop video here</div>
+              <div class="dz-label">Drop video or image here</div>
               <div class="dz-hint">or click to browse files</div>
               <div class="dz-formats">
                 <span class="dz-fmt">MP4</span>
@@ -800,6 +860,8 @@
                 <span class="dz-fmt">AVI</span>
                 <span class="dz-fmt">MKV</span>
                 <span class="dz-fmt">WEBM</span>
+                <span class="dz-fmt">PNG</span>
+                <span class="dz-fmt">JPG</span>
               </div>
             </div>
             <div class="video-preview" id="video-preview">
@@ -822,7 +884,7 @@
           </div>
 
           <div class="up-footer">
-            <input type="file" id="file-input" class="file-input" accept="video/*">
+            <input type="file" id="file-input" class="file-input" accept="video/*,image/*">
             <button class="btn-p" id="run-btn" onclick="runAnalysis()" disabled="">Run Analysis</button>
             <button class="btn-g" id="clear-btn" onclick="clearResults()" style="display:none">Clear Results</button>
             <span id="analysis-time" style="font-size:.58rem;color:var(--cream-faint);letter-spacing:.06em;margin-left:auto;display:none"></span>
@@ -831,12 +893,7 @@
       </div>
 
       <!-- Right: results -->
-      <div class="results-panel" id="results-panel">
-        <div class="res-card">
-  <div class="res-title">Vision Analysis Output</div>
-  <div class="res-empty" id="res-empty" style="text-align: left;">Upload a video and write a prompt to begin video analysis.</div>
-  <div id="res-content" style="display:none; font-size: .75rem; color: var(--cream); line-height: 1.6; white-space: pre-wrap; font-family: 'Jost', sans-serif; padding: .5rem 0;"></div>
-</div>
+      <div class="results-panel" id="results-panel" style="display:none;">
       </div>
 
     </div>
@@ -855,11 +912,15 @@
 
 <script>
 function switchAITab(tab) {
-  document.querySelectorAll('.pt-item').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.pt-content').forEach(el => el.classList.remove('active'));
-  
-  event.target.classList.add('active');
   document.getElementById('tab-' + tab).classList.add('active');
+  
+  if (tab === 'deployed') {
+     // Hide the testing header when returning to models
+     const th = document.getElementById('testing-header');
+     if (th) th.style.display = 'none';
+  }
 }
-</script>
+    </script>
 <script src="/admin/js/model-testing-merged.js"></script></body></html>
+

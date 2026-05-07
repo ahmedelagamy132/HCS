@@ -78,7 +78,7 @@
     .sb-nav::-webkit-scrollbar-thumb { background: var(--amber-dim); }
 
     .nav-section {
-      font-size: .55rem;
+      font-size: .65rem;
       letter-spacing: .28em;
       text-transform: uppercase;
       color: var(--cream-faint);
@@ -91,7 +91,7 @@
       gap: .85rem;
       padding: .72rem 1.8rem;
       cursor: pointer;
-      font-size: .68rem;
+      font-size: .80rem;
       font-weight: 400;
       letter-spacing: .14em;
       text-transform: uppercase;
@@ -107,14 +107,14 @@
       background: rgba(196,120,32,.08);
       border-left-color: var(--amber);
     }
-    .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: .65; }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: .65; }
     .nav-item.active svg { opacity: 1; }
 
     .nav-badge {
       margin-left: auto;
       background: rgba(196,120,32,.18);
       color: var(--amber);
-      font-size: .48rem;
+      font-size: .65rem;
       letter-spacing: .06em;
       padding: .15rem .5rem;
       border: 1px solid rgba(196,120,32,.25);
@@ -140,7 +140,7 @@
       font-size: 1rem; font-weight: 500; color: var(--amber);
       flex-shrink: 0;
     }
-    .user-name { font-size: .68rem; font-weight: 400; color: var(--cream); }
+    .user-name { font-size: .80rem; font-weight: 400; color: var(--cream); }
     .user-role { font-size: .52rem; letter-spacing: .1em; text-transform: uppercase; color: var(--cream-faint); margin-top: .12rem; }
 
     /* ─── MAIN ─────────────────────────────── */
@@ -166,7 +166,7 @@
       border: 1px solid rgba(196,120,32,.18);
       color: var(--cream);
       padding: .48rem .9rem .48rem 2.1rem;
-      font-family: 'Jost', sans-serif; font-size: .68rem; font-weight: 300; letter-spacing: .07em;
+      font-family: 'Jost', sans-serif; font-size: .80rem; font-weight: 300; letter-spacing: .07em;
       width: 210px; outline: none;
       transition: border-color .2s;
     }
@@ -262,7 +262,7 @@
       border-right: 1px solid rgba(196,120,32,.3);
     }
     .kpi-label {
-      font-size: .52rem; letter-spacing: .24em; text-transform: uppercase;
+      font-size: .65rem; letter-spacing: .24em; text-transform: uppercase;
       color: var(--cream-dim); margin-bottom: .65rem;
     }
     .kpi-value {
@@ -349,7 +349,7 @@
     .tbl-search {
       background: var(--bg3); border: 1px solid rgba(196,120,32,.18);
       color: var(--cream); padding: .52rem .9rem;
-      font-family: 'Jost', sans-serif; font-size: .68rem; font-weight: 300; letter-spacing: .06em;
+      font-family: 'Jost', sans-serif; font-size: .80rem; font-weight: 300; letter-spacing: .06em;
       outline: none; flex: 1; max-width: 280px; transition: border-color .2s;
     }
     .tbl-search:focus { border-color: var(--amber); }
@@ -366,7 +366,7 @@
     .tbl-wrap::-webkit-scrollbar { height: 3px; }
     .tbl-wrap::-webkit-scrollbar-thumb { background: var(--amber-dim); }
 
-    table.dt { width: 100%; border-collapse: collapse; font-size: .68rem; }
+    table.dt { width: 100%; border-collapse: collapse; font-size: .80rem; }
     table.dt thead th {
       text-align: left; padding: .78rem 1rem;
       font-size: .52rem; font-weight: 400; letter-spacing: .2em; text-transform: uppercase;
@@ -484,7 +484,7 @@
     .report-icon { color: var(--amber); margin-bottom: .8rem; }
     .report-name { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--cream); margin-bottom: .3rem; }
     .report-desc { font-size: .62rem; color: var(--cream-dim); line-height: 1.7; }
-    .report-tag { display: inline-block; margin-top: .8rem; font-size: .48rem; letter-spacing: .14em; text-transform: uppercase; color: var(--amber-dim); border: 1px solid var(--amber-dim); padding: .15rem .5rem; }
+    .report-tag { display: inline-block; margin-top: .8rem; font-size: .65rem; letter-spacing: .14em; text-transform: uppercase; color: var(--amber-dim); border: 1px solid var(--amber-dim); padding: .15rem .5rem; }
 
     /* ─── SETTINGS ─────────────────────────── */
     .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; }
@@ -530,65 +530,51 @@
           <h1 class="ph-title">Command <em>Center</em></h1>
         </div>
         <div class="ph-actions">
-          <button class="btn-g">Export Report</button>
-          <button class="btn-o">Refresh</button>
+          <button class="btn-g" id="btn-export-report">Export Report</button>
+          <button class="btn-o" onclick="location.reload()">Refresh</button>
         </div>
       </div>
 
       <div class="kpi-grid">
-        <div class="kpi-card">
+        <div class="kpi-card" id="kpi-card-clients" style="cursor:pointer" onclick="window.location.href='/admin/clients'">
           <div class="kpi-label">Total Clients</div>
-          <div class="kpi-value" data-target="284">0</div>
+          <div class="kpi-value" id="kpi-clients">-</div>
           <div class="kpi-meta">
-            <span class="kpi-trend up">↑ +12 this month</span>
             <span class="kpi-sub">Active accounts</span>
           </div>
           <svg class="kpi-spark" width="76" height="28" viewBox="0 0 76 28"><polyline points="0,24 12,19 24,21 36,13 50,15 62,7 76,9" fill="none" stroke="var(--amber)" stroke-width="1.5"></polyline></svg>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card" id="kpi-card-stables" style="cursor:pointer" onclick="window.location.href='/admin/stables'">
           <div class="kpi-label">Active Stables</div>
-          <div class="kpi-value" data-target="47">0</div>
+          <div class="kpi-value" id="kpi-stables">-</div>
           <div class="kpi-meta">
-            <span class="kpi-trend up">↑ +3 this quarter</span>
             <span class="kpi-sub">Across all regions</span>
           </div>
           <svg class="kpi-spark" width="76" height="28" viewBox="0 0 76 28"><polyline points="0,22 12,18 24,19 36,14 50,11 62,13 76,8" fill="none" stroke="var(--amber)" stroke-width="1.5"></polyline></svg>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card" id="kpi-card-horses" style="cursor:pointer" onclick="window.location.href='/admin/horses'">
           <div class="kpi-label">Registered Horses</div>
-          <div class="kpi-value" data-target="1203">0</div>
+          <div class="kpi-value" id="kpi-horses">-</div>
           <div class="kpi-meta">
-            <span class="kpi-trend up">↑ +89 this month</span>
             <span class="kpi-sub">All breeds combined</span>
           </div>
           <svg class="kpi-spark" width="76" height="28" viewBox="0 0 76 28"><polyline points="0,26 12,22 24,24 36,16 50,13 62,9 76,5" fill="none" stroke="var(--amber)" stroke-width="1.5"></polyline></svg>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card" id="kpi-card-analyses" style="cursor:pointer" onclick="window.location.href='/admin/ai-models'">
           <div class="kpi-label">AI Analyses Today</div>
-          <div class="kpi-value" data-target="1847">0</div>
+          <div class="kpi-value" id="kpi-analyses">-</div>
           <div class="kpi-meta">
-            <span class="kpi-trend up">↑ 23% vs yesterday</span>
             <span class="kpi-sub">All models combined</span>
           </div>
           <svg class="kpi-spark" width="76" height="28" viewBox="0 0 76 28"><polyline points="0,20 12,16 24,18 36,9 50,7 62,11 76,4" fill="none" stroke="var(--green)" stroke-width="1.5"></polyline></svg>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card" id="kpi-card-alerts" style="cursor:pointer" onclick="window.location.href='/admin/reports'">
           <div class="kpi-label">Health Alerts</div>
-          <div class="kpi-value" data-target="12">0</div>
+          <div class="kpi-value" id="kpi-alerts">-</div>
           <div class="kpi-meta">
-            <span class="kpi-trend dn">↑ 4 critical</span>
             <span class="kpi-sub">Require attention now</span>
           </div>
           <svg class="kpi-spark" width="76" height="28" viewBox="0 0 76 28"><polyline points="0,9 12,13 24,10 36,17 50,20 62,14 76,18" fill="none" stroke="var(--danger)" stroke-width="1.5"></polyline></svg>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">System Uptime</div>
-          <div class="kpi-value">99.97<span style="font-size:1.1rem;color:var(--cream-dim)">%</span></div>
-          <div class="kpi-meta">
-            <span class="kpi-trend neu">30-day rolling avg</span>
-            <span class="kpi-sub">SLA: 99.9%</span>
-          </div>
-          <svg class="kpi-spark" width="76" height="28" viewBox="0 0 76 28"><polyline points="0,4 12,4 24,4 36,4 50,6 62,4 76,4" fill="none" stroke="var(--green)" stroke-width="1.5"></polyline></svg>
         </div>
       </div>
 

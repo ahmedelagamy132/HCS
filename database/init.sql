@@ -1,6 +1,6 @@
--- ============================================================
--- HCS — Equine Intelligence System
--- init.sql  |  Master setup script — run this to create the full DB
+﻿-- ============================================================
+-- HCS â€” Equine Intelligence System
+-- init.sql  |  Master setup script â€” run this to create the full DB
 --
 -- Usage (psql):
 --   createdb hcs_db
@@ -15,54 +15,54 @@
 
 BEGIN;
 
--- ── 1. Extensions ────────────────────────────────────────────
+-- â”€â”€ 1. Extensions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 \ir schema/01_extensions.sql
 
--- ── 2. Enum types ────────────────────────────────────────────
+-- â”€â”€ 2. Enum types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 \ir schema/02_enums.sql
 
--- ── 3. Functions & trigger procedures ───────────────────────
+-- â”€â”€ 3. Functions & trigger procedures â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 \ir schema/03_functions.sql
 
--- ── 4. Auth tables ───────────────────────────────────────────
+-- â”€â”€ 4. Auth tables â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 \ir schema/04_tables_auth.sql
 
--- ── 5. Core tables (clients, stables, horses) ───────────────
+-- â”€â”€ 5. Core tables (clients, stables, horses) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 \ir schema/05_tables_core.sql
 
--- ── 6. IoT / device tables ───────────────────────────────────
+-- â”€â”€ 6. IoT / device tables â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 \ir schema/06_tables_iot.sql
 
--- ── 7. Health tables (must come after AI models stub) ────────
+-- â”€â”€ 7. Health tables (must come after AI models stub) â”€â”€â”€â”€â”€â”€â”€â”€
 -- ai_models table is referenced in health tables; we create a
 -- temporary forward-reference stub and replace it in step 8.
 -- health_alerts references ai_models (ON DELETE SET NULL) so
--- the FK is deferred — create health tables first, add FK later.
+-- the FK is deferred â€” create health tables first, add FK later.
 \ir schema/07_tables_health.sql
 
--- ── 8. AI tables ────────────────────────────────────────────
+-- â”€â”€ 8. AI tables â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 \ir schema/08_tables_ai.sql
 
--- ── Add deferred FK: health_alerts → ai_models ──────────────
+-- â”€â”€ Add deferred FK: health_alerts â†’ ai_models â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 ALTER TABLE health_alerts
     ADD CONSTRAINT fk_alerts_ai_model
     FOREIGN KEY (ai_model_id) REFERENCES ai_models(id) ON DELETE SET NULL;
 
--- ── Add deferred FK: horse_health_records → health_alerts ───
+-- â”€â”€ Add deferred FK: horse_health_records â†’ health_alerts â”€â”€â”€
 ALTER TABLE horse_health_records
     ADD CONSTRAINT fk_health_rec_alert
     FOREIGN KEY (triggered_by_alert) REFERENCES health_alerts(id) ON DELETE SET NULL;
 
--- ── 9. System tables ─────────────────────────────────────────
+-- â”€â”€ 9. System tables â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 \ir schema/09_tables_system.sql
 
--- ── 10. Indexes ──────────────────────────────────────────────
+-- â”€â”€ 10. Indexes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 \ir schema/10_indexes.sql
 
--- ── 11. Views ────────────────────────────────────────────────
+-- â”€â”€ 11. Views â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 \ir schema/11_views.sql
 
--- ── Seed data ────────────────────────────────────────────────
+-- â”€â”€ Seed data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 \ir seed/01_admins.sql
 \ir seed/02_clients_stables.sql
 \ir seed/03_horses.sql
@@ -75,3 +75,4 @@ COMMIT;
 \echo ' HCS Database initialised successfully.'
 \echo ' Run: SELECT * FROM v_system_kpis; to verify.'
 \echo '============================================================'
+

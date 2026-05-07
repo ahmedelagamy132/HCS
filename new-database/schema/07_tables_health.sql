@@ -1,0 +1,7 @@
+-- ============================================================
+-- HCS — Equine Intelligence System
+-- 07_tables_health.sql  |  Health tables removed
+-- horse_health_records, health_alerts, gait_analyses,
+-- diet_plans, behavior_records, performance_records,
+-- medical_records dropped — not used by portal
+-- ============================================================

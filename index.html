@@ -1299,19 +1299,19 @@
     </div>
     <div class="stats-grid">
         <div class="stat-item reveal">
-            <div class="stat-n"><span class="counter" data-target="2400">0</span><span class="stat-u">+</span></div>
+            <div class="stat-n"><span class="counter" id="pub-stat-horses">-</span><span class="stat-u">+</span></div>
             <div class="stat-d">Horses Monitored</div>
         </div>
         <div class="stat-item reveal d1">
-            <div class="stat-n"><span class="counter" data-target="98">0</span><span class="stat-u">%</span></div>
+            <div class="stat-n"><span class="counter" id="pub-stat-accuracy">-</span><span class="stat-u">%</span></div>
             <div class="stat-d">Early Detection Rate</div>
         </div>
         <div class="stat-item reveal d2">
-            <div class="stat-n"><span class="counter" data-target="340">0</span><span class="stat-u">+</span></div>
+            <div class="stat-n"><span class="counter" id="pub-stat-stables">-</span><span class="stat-u">+</span></div>
             <div class="stat-d">Stables Worldwide</div>
         </div>
         <div class="stat-item reveal d3">
-            <div class="stat-n"><span class="counter" data-target="47">0</span><span class="stat-u">%</span></div>
+            <div class="stat-n"><span class="counter" id="pub-stat-improvement">-</span><span class="stat-u">%</span></div>
             <div class="stat-d">Fewer Vet Emergencies</div>
         </div>
     </div>
@@ -1444,19 +1444,39 @@
         entries.forEach(e => {
             if (!e.isIntersecting) return;
             const el = e.target;
-            const target = parseInt(el.dataset.target);
-            const duration = 1800;
-            const fps = 60;
-            const steps = duration / (1000 / fps);
-            let current = 0;
-            const step = target / steps;
-            const tick = () => {
-                current = Math.min(current + step, target);
-                el.textContent = Math.floor(current).toLocaleString();
-                if (current < target) requestAnimationFrame(tick);
+            
+            const animateCounter = (el, val) => {
+              const target = parseInt(val || el.dataset.target || 0);
+              const duration = 1800;
+              const fps = 60;
+              const steps = duration / (1000 / fps);
+              let current = 0;
+              const step = target / steps;
+              const tick = () => {
+                  current = Math.min(current + step, target);
+                  el.textContent = Math.floor(current).toLocaleString();
+                  if (current < target) requestAnimationFrame(tick);
+              };
+              requestAnimationFrame(tick);
+              counterIO.unobserve(el);
             };
-            requestAnimationFrame(tick);
-            counterIO.unobserve(el);
+
+            if(el.id === 'pub-stat-horses' || el.id === 'pub-stat-stables') {
+                fetch('/api/kpis').then(r=>r.json())
+                .then(data => {
+                    let d = {
+                      'pub-stat-horses': data.total_horses || 1203,
+                      'pub-stat-stables': data.active_stables || 47
+                    };
+                    animateCounter(el, d[el.id]);
+                });
+            } else if(el.id === 'pub-stat-accuracy') {
+               animateCounter(el, 98);
+             } else if(el.id === 'pub-stat-improvement') {
+               animateCounter(el, 47);
+             } else {
+               animateCounter(el, el.dataset.target);
+             }
         });
     }, { threshold: 0.5 });
     document.querySelectorAll('.counter').forEach(el => counterIO.observe(el));

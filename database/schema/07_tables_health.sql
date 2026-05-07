@@ -53,7 +53,7 @@ CREATE TABLE health_alerts (
 
     -- Source
     detected_by      VARCHAR(50)    NOT NULL DEFAULT 'system', -- 'ai_model','sensor','vet','admin'
-    ai_model_id      UUID           REFERENCES ai_models(id) ON DELETE SET NULL,
+    ai_model_id UUID,
     sensor_reading_id UUID,                    -- reference to sensor_readings.id (no FK — partitioned)
     cv_event_id      UUID           REFERENCES cv_events(id) ON DELETE SET NULL,
     confidence_score DECIMAL(5,2),
@@ -73,7 +73,7 @@ CREATE TABLE health_alerts (
 CREATE TABLE gait_analyses (
     id                  UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
     horse_id            UUID        NOT NULL REFERENCES horses(id)   ON DELETE CASCADE,
-    ai_analysis_id      UUID        REFERENCES ai_analyses(id)       ON DELETE SET NULL,
+    ai_analysis_id UUID,
     cv_event_id         UUID        REFERENCES cv_events(id)         ON DELETE SET NULL,
     analyzed_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
@@ -102,7 +102,7 @@ CREATE TABLE gait_analyses (
 CREATE TABLE diet_plans (
     id               UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
     horse_id         UUID        NOT NULL REFERENCES horses(id) ON DELETE CASCADE,
-    ai_analysis_id   UUID        REFERENCES ai_analyses(id)    ON DELETE SET NULL,
+    ai_analysis_id UUID,
     created_by_admin UUID        REFERENCES admin_users(id)    ON DELETE SET NULL,
 
     -- Macronutrients
@@ -134,7 +134,7 @@ CREATE TABLE diet_plans (
 CREATE TABLE behavior_records (
     id                UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
     horse_id          UUID        NOT NULL REFERENCES horses(id) ON DELETE CASCADE,
-    ai_analysis_id    UUID        REFERENCES ai_analyses(id)    ON DELETE SET NULL,
+    ai_analysis_id UUID,
     observed_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     -- Scores 1-10
@@ -161,7 +161,7 @@ CREATE TABLE behavior_records (
 CREATE TABLE performance_records (
     id                    UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
     horse_id              UUID        NOT NULL REFERENCES horses(id) ON DELETE CASCADE,
-    ai_analysis_id        UUID        REFERENCES ai_analyses(id)    ON DELETE SET NULL,
+    ai_analysis_id UUID,
 
     event_type            VARCHAR(50),  -- 'race','training_session','endurance','dressage','show_jumping'
     event_name            VARCHAR(255),
