@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live View — HCS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@200;300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #080603;
+    --bg2:         #100D07;
+    --bg3:         #18130C;
+    --bg4:         #1F1910;
+    --amber:       #C47820;
+    --amber-lit:   #E09830;
+    --amber-dim:   #7A4C12;
+    --cream:       #EDE0C6;
+    --cream-dim:   #9A8A70;
+    --cream-faint: #4A4030;
+    --green:       #4E9468;
+    --green-dim:   #2A5A3A;
+    --danger:      #C04040;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { min-height: 100%; }
+
+  body {
+    color: var(--cream);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    position: relative;
+    background-color: #0A0704;
+    background-image:
+      radial-gradient(ellipse 1100px 780px at 88% -8%, rgba(224,152,48,.13), rgba(224,152,48,0) 55%),
+      radial-gradient(ellipse 900px 620px at 46% 24%, rgba(196,120,32,.06), rgba(196,120,32,0) 62%),
+      radial-gradient(ellipse 980px 700px at 4% 108%, rgba(0,0,0,.6), rgba(0,0,0,0) 62%),
+      radial-gradient(ellipse 1300px 900px at 105% 112%, rgba(122,76,18,.10), rgba(122,76,18,0) 55%),
+      linear-gradient(178deg, #0B0805 0%, #110C07 45%, #0A0705 100%);
+    background-attachment: fixed;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(circle at 78% 18%, rgba(224,152,48,.045), transparent 38%),
+      radial-gradient(circle at 22% 85%, rgba(78,42,14,.10), transparent 50%);
+  }
+
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999;
+  }
+
+  .topbar, main, section { position: relative; z-index: 1; }
+
+  /* ═══ TOP BAR ═══ */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(16,13,7,0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(196,120,32,.12);
+    padding: 1.1rem 3rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar::after {
+    content: '';
+    position: absolute; left: 0; right: 0; top: 100%;
+    height: 48px;
+    background: linear-gradient(to bottom, rgba(196,120,32,.08), transparent 85%);
+    pointer-events: none;
+  }
+
+  .tb-brand { display: flex; align-items: center; gap: 1.1rem; }
+  .wordmark {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.45rem; font-weight: 600;
+    letter-spacing: .26em; color: var(--cream);
+    text-transform: uppercase;
+  }
+  .wordmark em { color: var(--amber); font-style: normal; }
+  .tb-divider { width: 1px; height: 22px; background: rgba(196,120,32,.25); }
+
+  .breadcrumb {
+    display: flex; align-items: center; gap: .55rem;
+    font-size: .58rem; letter-spacing: .3em;
+    text-transform: uppercase; color: var(--cream-dim);
+  }
+  .bc-link { color: var(--cream-dim); text-decoration: none; transition: color .2s; }
+  .bc-link:hover { color: var(--amber); }
+  .bc-sep { color: var(--cream-faint); }
+  .bc-cur { color: var(--amber-lit); font-weight: 500; }
+  .tb-right { display: flex; align-items: center; gap: 1rem; }
+
+  .back-btn {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: transparent;
+    border: 1px solid rgba(196,120,32,.2);
+    color: var(--cream-dim);
+    padding: .5rem 1rem;
+    font-family: 'Jost', sans-serif;
+    font-size: .55rem; font-weight: 500;
+    letter-spacing: .22em; text-transform: uppercase;
+    cursor: pointer; border-radius: 6px;
+    text-decoration: none; transition: all .2s;
+  }
+  .back-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+  .logout-btn {
+    background: transparent;
+    border: 1px solid rgba(196,120,32,.18);
+    color: var(--cream-dim);
+    padding: .5rem 1rem;
+    font-family: 'Jost', sans-serif;
+    font-size: .55rem; font-weight: 500;
+    letter-spacing: .22em; text-transform: uppercase;
+    cursor: pointer; border-radius: 6px;
+    transition: border-color .2s, color .2s;
+  }
+  .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+  .back-btn-arrow { font-family: 'Cormorant Garamond', serif; font-size: 1rem; line-height: 1; }
+
+  /* ═══ MAIN ═══ */
+  .main {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 2.8rem 3rem 4rem;
+  }
+
+  .title-block {
+    display: flex; align-items: flex-end;
+    justify-content: space-between; gap: 2rem;
+    margin-bottom: 2.4rem; padding-bottom: 1.6rem;
+    border-bottom: 1px solid rgba(196,120,32,.1);
+    animation: fadeUp .8s cubic-bezier(.22,1,.36,1) both;
+  }
+
+  .title-code { display: flex; align-items: center; gap: .6rem; margin-bottom: .7rem; }
+  .title-code-line { width: 28px; height: 1px; background: var(--amber); }
+  .title-code-txt {
+    font-size: .58rem; letter-spacing: .34em;
+    text-transform: uppercase; color: var(--amber);
+    font-weight: 500;
+  }
+
+  .title-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 5vw, 4.2rem);
+    font-weight: 300; letter-spacing: -.015em;
+    line-height: 1; color: var(--cream);
+  }
+  .title-name em { font-style: italic; color: var(--amber-lit); }
+
+  .title-meta {
+    margin-top: .8rem; font-size: .78rem;
+    letter-spacing: .1em; color: var(--cream-dim);
+    font-weight: 300;
+  }
+  .title-meta span { color: var(--amber); margin: 0 .5rem; }
+
+  .title-right { display: flex; flex-direction: column; align-items: flex-end; gap: .6rem; }
+
+  .health-chip {
+    display: inline-flex; align-items: center; gap: .55rem;
+    padding: .4rem .85rem; border-radius: 2px;
+    font-size: .55rem; letter-spacing: .26em;
+    text-transform: uppercase; font-weight: 600;
+  }
+  .health-chip.excellent { background: rgba(78,148,104,.12); color: var(--green); border: 1px solid rgba(78,148,104,.3); }
+  .health-chip.observation { background: rgba(196,120,32,.12); color: var(--amber-lit); border: 1px solid rgba(196,120,32,.3); }
+  .health-chip.critical { background: rgba(192,64,64,.12); color: var(--danger); border: 1px solid rgba(192,64,64,.3); }
+  .health-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 6px currentColor; }
+  .health-note { font-size: .72rem; color: var(--cream-dim); letter-spacing: .05em; }
+
+  /* ═══ STREAM LAYOUT ═══ */
+  .stream-wrap {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 1.8rem;
+    align-items: start;
+    animation: fadeUp .9s cubic-bezier(.22,1,.36,1) .1s both;
+  }
+
+  .stage-column { display: flex; flex-direction: column; gap: 2rem; min-width: 0; }
+
+  .video-stage {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(168deg, #14100A 0%, #0B0805 100%);
+    border: 1px solid rgba(196,120,32,.18);
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow:
+      0 40px 90px -32px rgba(0,0,0,.9),
+      0 14px 36px -18px rgba(122,76,18,.22),
+      inset 0 1px 0 rgba(237,224,198,.05),
+      inset 0 0 0 1px rgba(255,255,255,.02);
+  }
+
+  .video-stage::before,
+  .video-stage::after {
+    content: '';
+    position: absolute;
+    width: 24px; height: 24px;
+    z-index: 4; pointer-events: none;
+  }
+  .video-stage::before {
+    top: 12px; left: 12px;
+    border-top: 1px solid rgba(196,120,32,.55);
+    border-left: 1px solid rgba(196,120,32,.55);
+  }
+  .video-stage::after {
+    bottom: 12px; right: 12px;
+    border-bottom: 1px solid rgba(196,120,32,.55);
+    border-right: 1px solid rgba(196,120,32,.55);
+  }
+
+  .video-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1.2rem;
+    background:
+      radial-gradient(circle at center, rgba(196,120,32,.04) 0%, transparent 70%),
+      repeating-linear-gradient(180deg, rgba(196,120,32,.02) 0px, rgba(196,120,32,.02) 1px, transparent 1px, transparent 4px);
+    z-index: 1;
+  }
+  .video-placeholder.hidden { display: none; }
+
+  .vp-icon {
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    border: 1px solid rgba(196,120,32,.4);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .vp-icon::after {
+    content: '';
+    position: absolute; inset: -6px;
+    border-radius: 50%;
+    border: 1px solid rgba(196,120,32,.2);
+    animation: ring 2.4s ease-out infinite;
+  }
+  .vp-icon svg { color: var(--amber); }
+  @keyframes ring {
+    0%   { transform: scale(1); opacity: .5; }
+    100% { transform: scale(1.35); opacity: 0; }
+  }
+
+  .vp-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem; font-weight: 300;
+    font-style: italic; color: var(--cream);
+    letter-spacing: .02em;
+  }
+  .vp-sub {
+    font-size: .56rem; letter-spacing: .3em;
+    text-transform: uppercase; color: var(--cream-faint);
+    margin-top: -.6rem;
+  }
+
+  .spinner {
+    width: 44px; height: 44px;
+    border: 2px solid rgba(196,120,32,.15);
+    border-top-color: var(--amber);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ═══ CANVAS FOR WEBSOCKET STREAM ═══ */
+  .stream-canvas {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    background: #000;
+    z-index: 0;
+    display: none;
+  }
+  .stream-canvas.active { display: block; }
+
+  /* ═══ VIDEO ELEMENT (fallback) ═══ */
+  .video-el {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    display: none;
+  }
+  .video-el.active { display: block; }
+
+  /* HUD */
+  .hud-top {
+    position: absolute;
+    top: 1.4rem; left: 1.4rem; right: 1.4rem;
+    display: flex; justify-content: space-between;
+    align-items: flex-start; z-index: 3;
+    pointer-events: none;
+  }
+
+  .hud-live {
+    display: inline-flex; align-items: center; gap: .55rem;
+    padding: .42rem .75rem;
+    background: rgba(8,6,3,.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(78,148,104,.35);
+    border-radius: 2px;
+  }
+  .hud-live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  .hud-live-txt {
+    font-size: .55rem; letter-spacing: .3em;
+    text-transform: uppercase; color: var(--green);
+    font-weight: 600;
+  }
+
+  .hud-right { text-align: right; font-family: 'JetBrains Mono', monospace; }
+  .hud-time {
+    font-size: .7rem; color: var(--cream);
+    letter-spacing: .1em;
+    background: rgba(8,6,3,.6);
+    backdrop-filter: blur(10px);
+    padding: .25rem .6rem;
+    border: 1px solid rgba(196,120,32,.15);
+    border-radius: 2px;
+  }
+  .hud-fps {
+    margin-top: .4rem; font-size: .5rem;
+    color: var(--amber); letter-spacing: .24em;
+  }
+
+  .hud-bottom {
+    position: absolute;
+    bottom: 1.4rem; left: 1.4rem; right: 1.4rem;
+    display: flex; justify-content: space-between;
+    align-items: flex-end; z-index: 3;
+  }
+
+  .hud-camera {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .55rem; color: var(--cream-dim);
+    letter-spacing: .2em; text-transform: uppercase;
+    background: rgba(8,6,3,.6);
+    backdrop-filter: blur(10px);
+    padding: .3rem .65rem;
+    border: 1px solid rgba(196,120,32,.12);
+    border-radius: 2px;
+  }
+  .hud-camera span { color: var(--amber); }
+
+  .hud-controls { display: flex; gap: .35rem; pointer-events: auto; }
+  .ctrl-btn {
+    width: 34px; height: 34px;
+    background: rgba(8,6,3,.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(196,120,32,.15);
+    color: var(--cream);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 2px; transition: all .2s;
+  }
+  .ctrl-btn:hover {
+    border-color: var(--amber); color: var(--amber);
+    background: rgba(196,120,32,.1);
+  }
+  .ctrl-btn svg { width: 14px; height: 14px; }
+
+  /* ═══ SIDE PANEL ═══ */
+  .side { display: flex; flex-direction: column; gap: 1.2rem; }
+
+  .panel {
+    background: linear-gradient(168deg, rgba(31,25,16,.78) 0%, rgba(16,13,7,.92) 100%);
+    border: 1px solid rgba(196,120,32,.12);
+    padding: 1.4rem; position: relative;
+    box-shadow:
+      0 24px 56px -28px rgba(0,0,0,.75),
+      0 8px 22px -14px rgba(122,76,18,.14),
+      inset 0 1px 0 rgba(237,224,198,.04);
+  }
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 14px; height: 14px;
+    border-top: 1px solid rgba(196,120,32,.4);
+    border-right: 1px solid rgba(196,120,32,.4);
+  }
+
+  .panel-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.1rem; padding-bottom: .8rem;
+    border-bottom: 1px solid rgba(196,120,32,.1);
+  }
+  .panel-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem; font-weight: 400;
+    font-style: italic; color: var(--cream);
+    letter-spacing: .01em;
+  }
+  .panel-badge {
+    font-size: .5rem; letter-spacing: .28em;
+    text-transform: uppercase; color: var(--amber);
+    font-weight: 500;
+  }
+
+  .conn-row { display: flex; align-items: center; gap: .7rem; margin-bottom: 1rem; }
+  .conn-status {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .32rem .65rem; border-radius: 2px;
+    font-size: .5rem; letter-spacing: .26em;
+    text-transform: uppercase; font-weight: 600;
+  }
+  .conn-status.live { background: rgba(78,148,104,.1); color: var(--green); border: 1px solid rgba(78,148,104,.28); }
+  .conn-status.offline { background: rgba(192,64,64,.1); color: var(--danger); border: 1px solid rgba(192,64,64,.28); }
+  .conn-status.connecting { background: rgba(196,120,32,.1); color: var(--amber-lit); border: 1px solid rgba(196,120,32,.28); }
+  .conn-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .conn-status.live .conn-dot { animation: pulse 1.6s ease-in-out infinite; box-shadow: 0 0 5px currentColor; }
+
+  .conn-btn {
+    width: 100%;
+    background: var(--amber); color: var(--bg);
+    border: none;
+    padding: .72rem 1rem;
+    font-family: 'Jost', sans-serif;
+    font-size: .58rem; font-weight: 500;
+    letter-spacing: .26em; text-transform: uppercase;
+    cursor: pointer; border-radius: 4px;
+    transition: all .2s;
+  }
+  .conn-btn:hover {
+    background: var(--amber-lit);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px -8px rgba(196,120,32,.5);
+  }
+  .conn-btn.disconnect {
+    background: transparent; color: var(--danger);
+    border: 1px solid rgba(192,64,64,.4);
+  }
+  .conn-btn.disconnect:hover {
+    background: rgba(192,64,64,.08);
+    border-color: var(--danger);
+    box-shadow: none; transform: none;
+  }
+  .conn-btn:disabled {
+    opacity: .5; pointer-events: none;
+  }
+
+  .info-list { display: flex; flex-direction: column; }
+  .info-item {
+    display: flex; justify-content: space-between;
+    align-items: center; padding: .72rem 0;
+    border-bottom: 1px dashed rgba(196,120,32,.08);
+  }
+  .info-item:last-child { border-bottom: none; }
+  .info-k {
+    font-size: .52rem; letter-spacing: .28em;
+    text-transform: uppercase; color: var(--cream-faint);
+    font-weight: 500;
+  }
+  .info-v {
+    font-size: .82rem; color: var(--cream);
+    letter-spacing: .04em; font-weight: 300;
+  }
+  .info-v em {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; color: var(--amber-lit);
+    font-size: .95rem;
+  }
+
+  .vitals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .9rem;
+  }
+  .vital {
+    background: var(--bg3);
+    border: 1px solid rgba(196,120,32,.1);
+    padding: .9rem .85rem; position: relative;
+  }
+  .vital-key {
+    font-size: .48rem; letter-spacing: .28em;
+    text-transform: uppercase; color: var(--cream-faint);
+    margin-bottom: .4rem; font-weight: 500;
+  }
+  .vital-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.55rem; font-weight: 400;
+    color: var(--cream); line-height: 1;
+  }
+  .vital-val .unit {
+    font-family: 'Jost', sans-serif;
+    font-size: .58rem; font-weight: 400;
+    color: var(--cream-dim);
+    letter-spacing: .1em; margin-left: .2rem;
+  }
+  .vital-trend {
+    margin-top: .3rem; font-size: .5rem;
+    letter-spacing: .16em; color: var(--green);
+    font-weight: 500;
+  }
+  .vital-trend.warn { color: var(--amber-lit); }
+
+  .vital-pulse {
+    margin-top: .5rem; height: 22px;
+    overflow: hidden; position: relative;
+  }
+  .vital-pulse svg {
+    position: absolute; left: 0; top: 0;
+    width: 200%; height: 100%;
+    animation: ecg 2.4s linear infinite;
+  }
+  @keyframes ecg {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ═══ STREAM INFO BANNER ═══ */
+  .stream-info {
+    padding: .6rem .9rem; margin-top: .5rem;
+    background: rgba(196,120,32,.06);
+    border: 1px solid rgba(196,120,32,.12);
+    border-radius: 4px;
+    font-size: .48rem; letter-spacing: .2em;
+    color: var(--cream-dim); text-transform: uppercase;
+    text-align: center; word-break: break-all;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50%      { opacity: .45; }
+  }
+
+  /* ═══ VLM CONTROLS ═══ */
+  .vlm-ctrl-row { display: flex; flex-direction: column; gap: .4rem; margin-bottom: .9rem; }
+  .vlm-ctrl-row:last-of-type { margin-bottom: 1.1rem; }
+  .vlm-label {
+    font-size: .5rem; letter-spacing: .28em;
+    text-transform: uppercase; color: var(--cream-faint);
+    font-weight: 500;
+  }
+  .vlm-label em {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    color: var(--amber-lit); letter-spacing: .02em;
+    font-size: .9rem; text-transform: none;
+  }
+  .vlm-select, .vlm-input, .vlm-textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid rgba(196,120,32,.16);
+    color: var(--cream);
+    padding: .55rem .7rem;
+    font-family: 'Jost', sans-serif;
+    font-size: .72rem; font-weight: 300;
+    letter-spacing: .03em;
+    border-radius: 3px;
+    transition: border-color .2s, background .2s;
+  }
+  .vlm-select:focus, .vlm-input:focus, .vlm-textarea:focus {
+    outline: none;
+    border-color: rgba(196,120,32,.45);
+    background: rgba(196,120,32,.04);
+  }
+  .vlm-textarea {
+    resize: vertical;
+    min-height: 64px;
+    line-height: 1.5;
+    font-size: .68rem;
+  }
+  .vlm-range {
+    width: 100%;
+    -webkit-appearance: none; appearance: none;
+    background: transparent;
+    height: 16px;
+    cursor: pointer;
+  }
+  .vlm-range::-webkit-slider-runnable-track {
+    height: 2px;
+    background: rgba(196,120,32,.18);
+    border-radius: 2px;
+  }
+  .vlm-range::-moz-range-track {
+    height: 2px;
+    background: rgba(196,120,32,.18);
+    border-radius: 2px;
+  }
+  .vlm-range::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 12px; height: 12px;
+    background: var(--amber);
+    border-radius: 50%;
+    margin-top: -5px;
+    box-shadow: 0 0 0 3px rgba(196,120,32,.12);
+    transition: box-shadow .2s;
+  }
+  .vlm-range::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 0 5px rgba(196,120,32,.18);
+  }
+  .vlm-range::-moz-range-thumb {
+    width: 12px; height: 12px;
+    background: var(--amber);
+    border: none; border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(196,120,32,.12);
+  }
+
+  .analyse-btn {
+    width: 100%;
+    background: transparent;
+    color: var(--amber);
+    border: 1px solid rgba(196,120,32,.32);
+    padding: .68rem 1rem;
+    font-family: 'Jost', sans-serif;
+    font-size: .55rem; font-weight: 500;
+    letter-spacing: .26em; text-transform: uppercase;
+    cursor: pointer; border-radius: 3px;
+    transition: all .2s;
+    display: inline-flex; align-items: center; justify-content: center; gap: .6rem;
+  }
+  .analyse-btn:hover:not(:disabled) {
+    border-color: var(--amber);
+    background: rgba(196,120,32,.06);
+  }
+  .analyse-btn:disabled {
+    opacity: .35; cursor: not-allowed;
+  }
+  .analyse-btn.active {
+    background: rgba(78,148,104,.08);
+    color: var(--green);
+    border-color: rgba(78,148,104,.45);
+  }
+  .analyse-btn.active::before {
+    content: '';
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  /* ═══ BEHAVIOR JOURNAL ═══ */
+  .journal-section {
+    animation: fadeUp 1s cubic-bezier(.22,1,.36,1) .25s both;
+  }
+  .journal-head {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px solid rgba(196,120,32,.1);
+    margin-bottom: 1.4rem;
+  }
+  .journal-title-block {
+    display: flex; flex-direction: column; gap: .5rem;
+  }
+  .journal-eyebrow {
+    display: flex; align-items: center; gap: .55rem;
+    font-size: .54rem; letter-spacing: .34em;
+    text-transform: uppercase; color: var(--amber);
+    font-weight: 500;
+  }
+  .journal-eyebrow-line { width: 22px; height: 1px; background: var(--amber); }
+  .journal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.85rem; font-weight: 300;
+    letter-spacing: -.01em; line-height: 1;
+    color: var(--cream);
+  }
+  .journal-title em { font-style: italic; color: var(--amber-lit); }
+  .journal-meta {
+    display: flex; align-items: center; gap: 1.2rem;
+    font-size: .58rem; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--cream-faint);
+  }
+  .journal-count { color: var(--amber-lit); font-weight: 500; }
+  .clear-btn {
+    background: transparent;
+    border: 1px solid rgba(196,120,32,.18);
+    color: var(--cream-dim);
+    padding: .42rem .85rem;
+    font-family: 'Jost', sans-serif;
+    font-size: .5rem; font-weight: 500;
+    letter-spacing: .22em; text-transform: uppercase;
+    cursor: pointer; border-radius: 3px;
+    transition: all .2s;
+  }
+  .clear-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+  .journal-empty {
+    padding: 3rem 1.5rem;
+    border: 1px dashed rgba(196,120,32,.15);
+    text-align: center;
+    color: var(--cream-faint);
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    letter-spacing: .02em;
+  }
+  .journal-empty span { color: var(--amber); font-style: normal; font-family: 'Jost', sans-serif; font-size: .52rem; letter-spacing: .26em; text-transform: uppercase; display: block; margin-top: .5rem; }
+
+  .journal-list { display: flex; flex-direction: column; }
+  .journal-entry {
+    display: grid;
+    grid-template-columns: 110px 90px 1fr auto;
+    gap: 1.4rem;
+    align-items: center;
+    padding: 1.1rem 0;
+    border-bottom: 1px dashed rgba(196,120,32,.08);
+    animation: fadeUp .6s cubic-bezier(.22,1,.36,1) both;
+  }
+  .journal-entry:last-child { border-bottom: none; }
+  .je-snap {
+    width: 110px; height: 64px;
+    background: var(--bg);
+    border: 1px solid rgba(196,120,32,.12);
+    overflow: hidden;
+    cursor: zoom-in;
+    transition: border-color .2s, transform .2s;
+  }
+  .je-snap:hover { border-color: rgba(196,120,32,.4); transform: scale(1.02); }
+  .je-snap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .je-time {
+    display: flex; flex-direction: column; gap: .25rem;
+  }
+  .je-time-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .8rem; color: var(--amber-lit);
+    font-weight: 400;
+  }
+  .je-time-frame {
+    font-size: .48rem; letter-spacing: .28em;
+    text-transform: uppercase; color: var(--cream-faint);
+  }
+  .je-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem; font-weight: 300;
+    line-height: 1.45; color: var(--cream);
+    letter-spacing: .005em;
+  }
+  .je-text.pending {
+    color: var(--cream-faint); font-style: italic;
+  }
+  .je-text.error { color: var(--danger); font-family: 'Jost', sans-serif; font-size: .8rem; font-style: italic; }
+  .je-status {
+    display: inline-flex; align-items: center; gap: .45rem;
+    padding: .3rem .65rem;
+    font-size: .48rem; letter-spacing: .24em;
+    text-transform: uppercase; font-weight: 600;
+    border-radius: 2px;
+  }
+  .je-status .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .je-status.pending { color: var(--amber-lit); background: rgba(196,120,32,.08); border: 1px solid rgba(196,120,32,.25); }
+  .je-status.pending .dot { animation: pulse 1.2s ease-in-out infinite; box-shadow: 0 0 5px currentColor; }
+  .je-status.done { color: var(--green); background: rgba(78,148,104,.08); border: 1px solid rgba(78,148,104,.25); }
+  .je-status.error { color: var(--danger); background: rgba(192,64,64,.08); border: 1px solid rgba(192,64,64,.25); }
+
+  @media (max-width: 1100px) {
+    .stream-wrap { grid-template-columns: 1fr; }
+    .journal-entry { grid-template-columns: 90px 1fr; gap: 1rem; row-gap: .5rem; }
+    .journal-entry .je-time { grid-column: 2; }
+    .journal-entry .je-text { grid-column: 1 / -1; }
+    .journal-entry .je-status { grid-column: 1 / -1; justify-self: start; }
+  }
+  @media (max-width: 700px) {
+    .topbar { padding: 1rem 1.3rem; }
+    .tb-divider, .breadcrumb { display: none; }
+    .main { padding: 2rem 1.3rem 3rem; }
+    .title-block { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .title-right { align-items: flex-start; }
+    .hud-top, .hud-bottom { left: .8rem; right: .8rem; top: .8rem; }
+    .hud-bottom { top: auto; bottom: .8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ TOP BAR ═══ -->
+<header class="topbar">
+  <div class="tb-brand">
+    <div class="wordmark"><em>H</em>CS</div>
+    <div class="tb-divider"></div>
+    <div class="breadcrumb">
+      <a href="/user/dashboard" class="bc-link">My Stable</a>
+      <span class="bc-sep">/</span>
+      <span class="bc-cur" id="bcHorse">Sahara King</span>
+    </div>
+  </div>
+  <div class="tb-right">
+    <a href="/user/dashboard" class="back-btn">
+      <span class="back-btn-arrow">&larr;</span>
+      <span>Back</span>
+    </a>
+    <button class="logout-btn" id="logoutBtn">Sign Out</button>
+  </div>
+</header>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+
+  <!-- Title block -->
+  <section class="title-block">
+    <div class="title-left">
+      <div class="title-code">
+        <div class="title-code-line"></div>
+        <div class="title-code-txt" id="hTitleCode">HR-D312 · Arabian</div>
+      </div>
+      <h1 class="title-name" id="hTitleName">Sa<em>hara King</em></h1>
+      <div class="title-meta" id="hTitleMeta">
+        6 years <span>·</span> Al-Rayyan Stable <span>·</span> Block D, Box 12
+      </div>
+    </div>
+    <div class="title-right">
+      <div class="health-chip excellent" id="healthChip">
+        <div class="health-chip-dot"></div>
+        <span id="healthTxt">Healthy</span>
+      </div>
+      <div class="health-note" id="healthNote">Last check: 1 hour ago</div>
+    </div>
+  </section>
+
+  <!-- Stream + Side panel -->
+  <section class="stream-wrap">
+
+    <div class="stage-column">
+
+    <!-- Video stage -->
+    <div class="video-stage" id="videoStage">
+      <!-- Placeholder -->
+      <div class="video-placeholder" id="videoPlaceholder">
+        <div class="vp-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M23 7l-7 5 7 5V7z"/>
+            <rect x="1" y="5" width="15" height="14" rx="2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="vp-text">Awaiting stream</div>
+          <div class="vp-sub" style="text-align:center; margin-top: .3rem;">Tap connect to begin live feed</div>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="video-placeholder hidden" id="videoLoading">
+        <div class="spinner"></div>
+        <div>
+          <div class="vp-text">Establishing link</div>
+          <div class="vp-sub" style="text-align:center; margin-top: .3rem;" id="loadingSubTxt">Connecting to camera...</div>
+        </div>
+      </div>
+
+      <!-- Canvas for WebSocket RTSP stream -->
+      <canvas class="stream-canvas" id="streamCanvas"></canvas>
+
+      <!-- Video element for fallback -->
+      <video class="video-el" id="videoEl" autoplay loop muted playsinline></video>
+
+      <!-- HUD -->
+      <div class="hud-top" style="display:none;" id="hudTop">
+        <div class="hud-live">
+          <div class="hud-live-dot"></div>
+          <div class="hud-live-txt">Live</div>
+        </div>
+        <div class="hud-right">
+          <div class="hud-time" id="hudTime">00:00:00</div>
+          <div class="hud-fps" id="hudFps">Connecting...</div>
+        </div>
+      </div>
+      <div class="hud-bottom" style="display:none;" id="hudBottom">
+        <div class="hud-camera">CAM-<span id="camId">D12</span> · Ch.1</div>
+        <div class="hud-controls">
+          <button class="ctrl-btn" id="snapBtn" title="Snapshot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </button>
+          <button class="ctrl-btn" id="fsBtn" title="Fullscreen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M3 3h6M3 3v6M21 3h-6M21 3v6M3 21h6M3 21v-6M21 21h-6M21 21v-6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Behaviour Journal (sits directly under the video) -->
+    <section class="journal-section">
+      <div class="journal-head">
+        <div class="journal-title-block">
+          <div class="journal-eyebrow">
+            <div class="journal-eyebrow-line"></div>
+            <span>Live Behaviour Journal</span>
+          </div>
+          <div class="journal-title">A reading of <em id="journalHorseName">Casino's</em> day</div>
+        </div>
+        <div class="journal-meta">
+          <span class="journal-count" id="journalCount">0 entries</span>
+          <button class="clear-btn" id="journalClearBtn">Clear</button>
+        </div>
+      </div>
+      <div class="journal-empty" id="journalEmpty">
+        No readings yet.
+        <span>Connect the stream and start a reading to begin</span>
+      </div>
+      <div class="journal-list" id="journalList" style="display:none;"></div>
+    </section>
+
+    </div><!-- /stage-column -->
+
+    <!-- Side panel -->
+    <aside class="side">
+
+      <!-- Feed control -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Feed Control</div>
+          <div class="panel-badge" id="feedBadge">RTSP · WebSocket</div>
+        </div>
+        <div class="conn-row">
+          <div class="conn-status offline" id="connStatus">
+            <div class="conn-dot"></div>
+            <span id="connStatusTxt">Disconnected</span>
+          </div>
+        </div>
+        <button class="conn-btn" id="connectBtn">Connect Stream</button>
+        <div class="stream-info" id="streamInfo" style="display:none;"></div>
+      </div>
+
+      <!-- Horse info -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Profile</div>
+          <div class="panel-badge">Identity</div>
+        </div>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-k">Breed</span>
+            <span class="info-v" id="iBreed">Arabian</span>
+          </div>
+          <div class="info-item">
+            <span class="info-k">Age</span>
+            <span class="info-v"><em id="iAge">6</em> years</span>
+          </div>
+          <div class="info-item">
+            <span class="info-k">Gender</span>
+            <span class="info-v" id="iGender">Stallion</span>
+          </div>
+          <div class="info-item">
+            <span class="info-k">Colour</span>
+            <span class="info-v" id="iColor">Bay</span>
+          </div>
+          <div class="info-item">
+            <span class="info-k">Stable</span>
+            <span class="info-v" id="iStable">Al-Rayyan</span>
+          </div>
+          <div class="info-item">
+            <span class="info-k">Box</span>
+            <span class="info-v" id="iBox">D-12</span>
+          </div>
+          <div class="info-item">
+            <span class="info-k">Registered</span>
+            <span class="info-v" id="iReg">Sep 2023</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vitals -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Live Vitals</div>
+          <div class="panel-badge" id="vitalsBadge">Real-time</div>
+        </div>
+        <div class="vitals-grid">
+          <div class="vital">
+            <div class="vital-key">Heart Rate</div>
+            <div class="vital-val" id="vHr">41<span class="unit">bpm</span></div>
+            <div class="vital-pulse">
+              <svg viewBox="0 0 200 22" preserveAspectRatio="none">
+                <polyline points="0,11 20,11 25,4 30,18 35,11 60,11 65,7 70,11 100,11 105,4 110,18 115,11 140,11 145,7 150,11 200,11"
+                  stroke="#4E9468" stroke-width="1.3" fill="none"/>
+                <polyline points="200,11 220,11 225,4 230,18 235,11 260,11 265,7 270,11 300,11 305,4 310,18 315,11 340,11 345,7 350,11 400,11"
+                  stroke="#4E9468" stroke-width="1.3" fill="none"/>
+              </svg>
+            </div>
+          </div>
+          <div class="vital">
+            <div class="vital-key">Temp</div>
+            <div class="vital-val" id="vTemp">37.7<span class="unit">&deg;C</span></div>
+            <div class="vital-trend">&uarr; Stable</div>
+          </div>
+          <div class="vital">
+            <div class="vital-key">Respiration</div>
+            <div class="vital-val" id="vResp">13<span class="unit">/min</span></div>
+            <div class="vital-trend">&harr; Normal</div>
+          </div>
+          <div class="vital">
+            <div class="vital-key">Activity</div>
+            <div class="vital-val" id="vActivity">78<span class="unit">%</span></div>
+            <div class="vital-trend">&uarr; Active</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Behaviour Analysis -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Behaviour Reading</div>
+          <div class="panel-badge">VLM</div>
+        </div>
+
+        <div class="vlm-ctrl-row">
+          <label class="vlm-label" for="vlmModel">Model</label>
+          <select class="vlm-select" id="vlmModel">
+            <option value="">Loading models…</option>
+          </select>
+        </div>
+
+        <div class="vlm-ctrl-row">
+          <label class="vlm-label" for="vlmInterval">Interval <em>·</em> Seconds</label>
+          <input type="number" class="vlm-input" id="vlmInterval" value="5" min="1" max="120">
+        </div>
+
+        <div class="vlm-ctrl-row">
+          <label class="vlm-label" for="vlmQuality">Frame Quality <em>·</em> <span id="vlmQualityVal">75</span>%</label>
+          <input type="range" class="vlm-range" id="vlmQuality" value="75" min="30" max="100">
+        </div>
+
+        <div class="vlm-ctrl-row">
+          <label class="vlm-label" for="vlmResolution">Resolution</label>
+          <select class="vlm-select" id="vlmResolution">
+            <option value="320x240">320 × 240 — Fastest</option>
+            <option value="640x480" selected>640 × 480 — Balanced</option>
+            <option value="1280x720">1280 × 720 — Detailed</option>
+          </select>
+        </div>
+
+        <div class="vlm-ctrl-row">
+          <label class="vlm-label" for="vlmPrompt">Prompt</label>
+          <textarea class="vlm-textarea" id="vlmPrompt">What is the horse doing? Describe the horse's behaviour in one concise sentence. Focus on posture, movement, and activity.</textarea>
+        </div>
+
+        <button class="analyse-btn" id="analyseBtn" disabled>Start Reading</button>
+      </div>
+
+    </aside>
+
+  </section>
+
+</main>
+
+<script>
+  // ═══ AUTH CHECK ═══
+  const token = localStorage.getItem('userToken');
+  if (!token) { window.location.href = '/user/login'; }
+
+  // ═══ HORSE DATA ═══
+  const params = new URLSearchParams(window.location.search);
+  const horseId = params.get('id') || 'h101';
+
+  let horse = null;
+
+  const MOCK_HORSES = {
+    'h101': { code:'HR-D312',name:'Sahara King',breed:'Arabian',age:6,gender:'Stallion',color:'Bay',
+              stable:'Al-Rayyan',box:'D-12',stableFull:'Al-Rayyan Stable · Block D, Box 12',
+              registered:'Sep 2023',health:'excellent',healthTxt:'Healthy',lastCheck:'1 hour ago',
+              cam:'D12',rtspUrl:'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4',
+              weight_kg:510,height_cm:156 },
+    'h102': { code:'HR-D318',name:'Layali',breed:'Arabian',age:4,gender:'Mare',color:'Grey',
+              stable:'Al-Rayyan',box:'D-18',stableFull:'Al-Rayyan Stable · Block D, Box 18',
+              registered:'Jan 2025',health:'excellent',healthTxt:'Healthy',lastCheck:'35 min ago',
+              cam:'D18',rtspUrl:'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4',
+              weight_kg:465,height_cm:149 },
+    'h103': { code:'HR-E201',name:'Thunder Wind',breed:'Thoroughbred',age:8,gender:'Gelding',color:'Chestnut',
+              stable:'Al-Rayyan',box:'E-01',stableFull:'Al-Rayyan Stable · Block E, Box 01',
+              registered:'Mar 2022',health:'observation',healthTxt:'Observation',lastCheck:'12 min ago',
+              cam:'E01',rtspUrl:'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4',
+              weight_kg:545,height_cm:163 },
+    'h104': { code:'HR-F115',name:'Al Buraq',breed:'Arabian',age:5,gender:'Stallion',color:'Black',
+              stable:'Al-Rayyan',box:'F-15',stableFull:'Al-Rayyan Stable · Block F, Box 15',
+              registered:'Nov 2023',health:'excellent',healthTxt:'Healthy',lastCheck:'2 hours ago',
+              cam:'F15',rtspUrl:'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4',
+              weight_kg:525,height_cm:154 }
+  };
+
+  function applyHorse(h) {
+    horse = h;
+    document.title = `${h.name} · Live — HCS`;
+    document.getElementById('bcHorse').textContent = h.name;
+    document.getElementById('hTitleCode').textContent = `${h.code} · ${h.breed}`;
+    const [first, ...rest] = h.name;
+    document.getElementById('hTitleName').innerHTML = `${first}<em>${rest.join('')}</em>`;
+    document.getElementById('hTitleMeta').innerHTML = `${h.age} years <span>·</span> ${h.stable} Stable <span>·</span> Box ${h.box}`;
+
+    const chip = document.getElementById('healthChip');
+    chip.className = `health-chip ${h.health}`;
+    document.getElementById('healthTxt').textContent = h.healthTxt;
+    document.getElementById('healthNote').textContent = `Last check: ${h.lastCheck}`;
+
+    document.getElementById('iBreed').textContent  = h.breed;
+    document.getElementById('iAge').textContent    = h.age;
+    document.getElementById('iGender').textContent = h.gender;
+    document.getElementById('iColor').textContent  = h.color;
+    document.getElementById('iStable').textContent = h.stable;
+    document.getElementById('iBox').textContent    = h.box;
+    document.getElementById('iReg').textContent    = h.registered;
+    document.getElementById('camId').textContent   = h.cam;
+    const jhn = document.getElementById('journalHorseName');
+    if (jhn) jhn.textContent = `${h.name}'s`;
+
+    if (h.vitals) {
+      document.getElementById('vHr').innerHTML = `${h.vitals.hr}<span class="unit">bpm</span>`;
+      document.getElementById('vTemp').innerHTML = `${h.vitals.temp}<span class="unit">&deg;C</span>`;
+      document.getElementById('vResp').innerHTML = `${h.vitals.resp}<span class="unit">/min</span>`;
+      document.getElementById('vActivity').innerHTML = `${h.vitals.activity}<span class="unit">%</span>`;
+    }
+  }
+
+  // Load horse from API or fallback
+  applyHorse(MOCK_HORSES[horseId] || MOCK_HORSES['h101']);
+
+  // Try API
+  (async () => {
+    try {
+      const res = await fetch(`/api/user/horses/${horseId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const apiHorse = await res.json();
+        applyHorse(apiHorse);
+      }
+    } catch (e) {}
+  })();
+
+  // ═══ RTSP WEBSOCKET STREAMING ═══
+  const connectBtn    = document.getElementById('connectBtn');
+  const connStatus    = document.getElementById('connStatus');
+  const connStatusTxt = document.getElementById('connStatusTxt');
+  const placeholder   = document.getElementById('videoPlaceholder');
+  const loading       = document.getElementById('videoLoading');
+  const hudTop        = document.getElementById('hudTop');
+  const hudBottom     = document.getElementById('hudBottom');
+  const videoStage    = document.getElementById('videoStage');
+  const streamCanvas  = document.getElementById('streamCanvas');
+  const videoEl       = document.getElementById('videoEl');
+  const streamInfo    = document.getElementById('streamInfo');
+
+  let streaming   = false;
+  let ws          = null;
+  let timerInt    = null;
+  let elapsed     = 0;
+  let frameCount  = 0;
+  let fpsCalc     = 0;
+  let lastFpsTime = 0;
+  let canvasCtx   = null;
+  let img         = new Image();
+
+  function setStatus(state) {
+    connStatus.className = `conn-status ${state}`;
+    const map = { live:'Live · Streaming', offline:'Disconnected', connecting:'Connecting...' };
+    connStatusTxt.textContent = map[state];
+  }
+
+  function fmtTime(s) {
+    const h = String(Math.floor(s/3600)).padStart(2,'0');
+    const m = String(Math.floor((s%3600)/60)).padStart(2,'0');
+    const sec = String(s%60).padStart(2,'0');
+    return `${h}:${m}:${sec}`;
+  }
+
+  function startFpsCounter() {
+    frameCount = 0;
+    fpsCalc = 0;
+    lastFpsTime = Date.now();
+  }
+
+  function updateFps() {
+    const now = Date.now();
+    const elapsed = now - lastFpsTime;
+    if (elapsed >= 1000) {
+      fpsCalc = Math.round(frameCount / (elapsed / 1000));
+      frameCount = 0;
+      lastFpsTime = now;
+      document.getElementById('hudFps').textContent = `${fpsCalc} FPS · RTSP`;
+    }
+  }
+
+  function connectStream() {
+    if (streaming) return;
+    if (!horse || !horse.rtspUrl) {
+      alert('No RTSP stream URL configured for this horse.');
+      return;
+    }
+
+    setStatus('connecting');
+    placeholder.classList.add('hidden');
+    loading.classList.remove('hidden');
+    streamInfo.style.display = 'none';
+    connectBtn.disabled = true;
+    connectBtn.textContent = 'Connecting...';
+
+    videoEl.classList.remove('active');
+    videoEl.pause();
+    videoEl.src = '';
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/stream?url=${encodeURIComponent(horse.rtspUrl)}`;
+
+    try {
+      ws = new WebSocket(wsUrl);
+      ws.binaryType = 'arraybuffer';
+
+      ws.onopen = () => {
+        loading.classList.add('hidden');
+        streamCanvas.classList.add('active');
+        canvasCtx = streamCanvas.getContext('2d');
+        img.onload = () => {
+          if (!canvasCtx) return;
+          streamCanvas.width = img.width;
+          streamCanvas.height = img.height;
+          canvasCtx.drawImage(img, 0, 0, streamCanvas.width, streamCanvas.height);
+          frameCount++;
+          updateFps();
+          maybeSendToVLM();
+        };
+
+        hudTop.style.display = 'flex';
+        hudBottom.style.display = 'flex';
+        setStatus('live');
+        connectBtn.disabled = false;
+        connectBtn.textContent = 'Disconnect Stream';
+        connectBtn.classList.add('disconnect');
+        streaming = true;
+        if (typeof analyseBtn !== 'undefined' && analyseBtn) analyseBtn.disabled = false;
+
+        elapsed = 0;
+        startFpsCounter();
+        timerInt = setInterval(() => {
+          elapsed++;
+          document.getElementById('hudTime').textContent = fmtTime(elapsed);
+        }, 1000);
+      };
+
+      ws.onmessage = (event) => {
+        if (typeof event.data === 'string') {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.type === 'error') {
+              console.warn('Stream error:', msg.message);
+              disconnectStream();
+              streamInfo.textContent = 'RTSP Error: ' + msg.message;
+              streamInfo.style.display = 'block';
+              streamInfo.style.color = '#C04040';
+              streamInfo.style.borderColor = 'rgba(192,64,64,.25)';
+              connectFallbackVideo();
+            }
+          } catch (e) {}
+          return;
+        }
+        const blob = new Blob([event.data], { type: 'image/jpeg' });
+        const url = URL.createObjectURL(blob);
+        img.src = url;
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+      };
+
+      ws.onerror = () => {
+        console.warn('WebSocket error, falling back to video.');
+        disconnectStream();
+        connectFallbackVideo();
+      };
+
+      ws.onclose = () => {
+        if (streaming) {
+          disconnectStream();
+        }
+      };
+    } catch (e) {
+      console.warn('WebSocket not available, using fallback video.');
+      disconnectStream();
+      connectFallbackVideo();
+    }
+  }
+
+  function connectFallbackVideo() {
+    setStatus('connecting');
+    placeholder.classList.add('hidden');
+    loading.classList.remove('hidden');
+    streamCanvas.classList.remove('active');
+    streamInfo.textContent = 'Using fallback demo stream (ffmpeg not available)';
+    streamInfo.style.display = 'block';
+    streamInfo.style.color = '#9A8A70';
+    streamInfo.style.borderColor = 'rgba(196,120,32,.12)';
+
+    setTimeout(() => {
+      loading.classList.add('hidden');
+      videoEl.classList.add('active');
+      videoEl.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+      videoEl.play().catch(() => {});
+
+      hudTop.style.display = 'flex';
+      hudBottom.style.display = 'flex';
+      document.getElementById('hudFps').textContent = 'Demo · 1080P';
+      setStatus('live');
+      connectBtn.disabled = false;
+      connectBtn.textContent = 'Disconnect Stream';
+      connectBtn.classList.add('disconnect');
+      streaming = true;
+
+      elapsed = 0;
+      timerInt = setInterval(() => {
+        elapsed++;
+        document.getElementById('hudTime').textContent = fmtTime(elapsed);
+      }, 1000);
+    }, 1200);
+  }
+
+  function disconnectStream() {
+    if (ws) {
+      ws.onclose = null;
+      ws.onerror = null;
+      ws.onmessage = null;
+      ws.close();
+      ws = null;
+    }
+    clearInterval(timerInt);
+
+    streamCanvas.classList.remove('active');
+    if (canvasCtx) {
+      canvasCtx.clearRect(0, 0, streamCanvas.width, streamCanvas.height);
+      canvasCtx = null;
+    }
+    videoEl.classList.remove('active');
+    videoEl.pause();
+    videoEl.src = '';
+
+    hudTop.style.display = 'none';
+    hudBottom.style.display = 'none';
+    loading.classList.add('hidden');
+    placeholder.classList.remove('hidden');
+    streamInfo.style.display = 'none';
+
+    setStatus('offline');
+    connectBtn.textContent = 'Connect Stream';
+    connectBtn.classList.remove('disconnect');
+    connectBtn.disabled = false;
+    streaming = false;
+
+    // Stop VLM when stream stops
+    if (typeof stopAnalysis === 'function') stopAnalysis();
+    if (typeof analyseBtn !== 'undefined' && analyseBtn) analyseBtn.disabled = true;
+  }
+
+  connectBtn.addEventListener('click', () => {
+    streaming ? disconnectStream() : connectStream();
+  });
+
+  // Snapshot
+  document.getElementById('snapBtn').addEventListener('click', () => {
+    if (canvasCtx && streamCanvas.classList.contains('active')) {
+      const link = document.createElement('a');
+      link.download = `${horse.name}-${Date.now()}.png`;
+      link.href = streamCanvas.toDataURL('image/png');
+      link.click();
+    } else if (videoEl.classList.contains('active') && videoEl.readyState >= 2) {
+      const canvas = document.createElement('canvas');
+      canvas.width = videoEl.videoWidth;
+      canvas.height = videoEl.videoHeight;
+      canvas.getContext('2d').drawImage(videoEl, 0, 0);
+      const link = document.createElement('a');
+      link.download = `${horse.name}-${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  });
+
+  // Fullscreen
+  document.getElementById('fsBtn').addEventListener('click', () => {
+    if (!document.fullscreenElement) videoStage.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  });
+
+  // Vitals fluctuation (mock)
+  setInterval(() => {
+    if (!streaming || !horse) return;
+    const baseHr = horse.vitals ? horse.vitals.hr : 41;
+    const hr = baseHr + Math.floor(Math.random() * 5) - 2;
+    const temp = (37.5 + Math.random() * 0.4).toFixed(1);
+    document.getElementById('vHr').innerHTML = `${hr}<span class="unit">bpm</span>`;
+    document.getElementById('vTemp').innerHTML = `${temp}<span class="unit">&deg;C</span>`;
+  }, 2500);
+
+  // Cleanup on page leave
+  window.addEventListener('beforeunload', () => {
+    disconnectStream();
+  });
+
+  // Sign out
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    try {
+      await fetch('/api/user/logout', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('userToken') }
+      });
+    } catch (e) {}
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userPhoto');
+    window.location.href = '/user/login';
+  });
+
+  // ═══ VLM BEHAVIOUR READING ═══
+  const vlmModel       = document.getElementById('vlmModel');
+  const vlmInterval    = document.getElementById('vlmInterval');
+  const vlmQuality     = document.getElementById('vlmQuality');
+  const vlmQualityVal  = document.getElementById('vlmQualityVal');
+  const vlmResolution  = document.getElementById('vlmResolution');
+  const vlmPrompt      = document.getElementById('vlmPrompt');
+  const analyseBtn     = document.getElementById('analyseBtn');
+  const journalList    = document.getElementById('journalList');
+  const journalEmpty   = document.getElementById('journalEmpty');
+  const journalCount   = document.getElementById('journalCount');
+  const journalClearBtn = document.getElementById('journalClearBtn');
+
+  let analyzing       = false;
+  let pendingAnalysis = false;
+  let lastAnalysisTime = 0;
+  let entryCounter    = 0;
+  let entryCount      = 0;
+
+  vlmQuality.addEventListener('input', () => {
+    vlmQualityVal.textContent = vlmQuality.value;
+  });
+
+  (async function loadModels() {
+    try {
+      const res = await fetch('/api/models');
+      if (!res.ok) throw new Error();
+      const models = await res.json();
+      const vision = models.filter(m => m.category === 'Vision Model' && m.id !== 'dlc-gait-pose');
+      vlmModel.innerHTML = '';
+      if (!vision.length) {
+        vlmModel.innerHTML = '<option value="">No vision models found</option>';
+        return;
+      }
+      vision.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = `${m.name} · ${m.version}`;
+        vlmModel.appendChild(opt);
+      });
+    } catch (e) {
+      vlmModel.innerHTML = '<option value="">Cannot reach VLM server</option>';
+    }
+  })();
+
+  function startAnalysis() {
+    if (!streaming) return;
+    if (!vlmModel.value) return;
+    analyzing = true;
+    lastAnalysisTime = 0;
+    analyseBtn.classList.add('active');
+    analyseBtn.textContent = 'Stop Reading';
+  }
+
+  function stopAnalysis() {
+    analyzing = false;
+    analyseBtn.classList.remove('active');
+    analyseBtn.textContent = 'Start Reading';
+  }
+
+  analyseBtn.addEventListener('click', () => {
+    analyzing ? stopAnalysis() : startAnalysis();
+  });
+
+  function maybeSendToVLM() {
+    if (!analyzing || pendingAnalysis) return;
+    const intervalSec = parseFloat(vlmInterval.value) || 5;
+    const now = Date.now();
+    if (now - lastAnalysisTime < intervalSec * 1000) return;
+    lastAnalysisTime = now;
+    sendFrameToVLM();
+  }
+
+  async function sendFrameToVLM() {
+    if (pendingAnalysis) return;
+    if (!streamCanvas.width || !streamCanvas.height) return;
+    pendingAnalysis = true;
+
+    const model    = vlmModel.value;
+    const prompt   = vlmPrompt.value.trim();
+    const quality  = parseInt(vlmQuality.value, 10) / 100;
+    const [rw, rh] = vlmResolution.value.split('x').map(Number);
+
+    const offscreen = document.createElement('canvas');
+    offscreen.width  = rw;
+    offscreen.height = rh;
+    offscreen.getContext('2d').drawImage(streamCanvas, 0, 0, rw, rh);
+    const dataUrl = offscreen.toDataURL('image/jpeg', quality);
+    const base64 = dataUrl.split(',')[1];
+
+    const ts = new Date().toTimeString().substring(0, 8);
+    const entryId = addPendingEntry(ts, frameCount, dataUrl);
+
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model, prompt, image: base64 }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        updateEntry(entryId, err.detail || `HTTP ${res.status}`, 'error');
+      } else {
+        const data = await res.json();
+        updateEntry(entryId, data.response || '(no response)', 'done');
+      }
+    } catch (e) {
+      updateEntry(entryId, 'Network error: ' + e.message, 'error');
+    } finally {
+      pendingAnalysis = false;
+    }
+  }
+
+  function addPendingEntry(timestamp, frame, snapshotUrl) {
+    const id = ++entryCounter;
+    entryCount++;
+    updateJournalCount();
+    journalEmpty.style.display = 'none';
+    journalList.style.display = 'flex';
+
+    const row = document.createElement('div');
+    row.className = 'journal-entry';
+    row.id = `je-${id}`;
+    row.innerHTML = `
+      <div class="je-snap" onclick="window.open('${snapshotUrl}','_blank')">
+        <img src="${snapshotUrl}" alt="frame ${frame}">
+      </div>
+      <div class="je-time">
+        <div class="je-time-val">${timestamp}</div>
+        <div class="je-time-frame">Frame ${frame}</div>
+      </div>
+      <div class="je-text pending" id="je-text-${id}">Reading the frame…</div>
+      <div class="je-status pending" id="je-status-${id}"><span class="dot"></span>Pending</div>
+    `;
+    journalList.insertBefore(row, journalList.firstChild);
+    return id;
+  }
+
+  function updateEntry(id, text, status) {
+    const textEl   = document.getElementById(`je-text-${id}`);
+    const statusEl = document.getElementById(`je-status-${id}`);
+    if (!textEl || !statusEl) return;
+    textEl.className = `je-text ${status === 'error' ? 'error' : ''}`;
+    textEl.textContent = text;
+    statusEl.className = `je-status ${status}`;
+    statusEl.innerHTML = `<span class="dot"></span>${status === 'done' ? 'Read' : 'Error'}`;
+  }
+
+  function updateJournalCount() {
+    journalCount.textContent = `${entryCount} ${entryCount === 1 ? 'entry' : 'entries'}`;
+  }
+
+  journalClearBtn.addEventListener('click', () => {
+    journalList.innerHTML = '';
+    entryCount = 0;
+    updateJournalCount();
+    journalList.style.display = 'none';
+    journalEmpty.style.display = 'block';
+  });
+</script>
+
+</body>
+</html>

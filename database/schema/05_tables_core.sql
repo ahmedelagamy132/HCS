@@ -152,3 +152,13 @@ CREATE TRIGGER trg_subscriptions_updated
 CREATE TRIGGER trg_horse_stable_occupancy
     AFTER INSERT OR UPDATE OF stable_id, is_active OR DELETE ON horses
     FOR EACH ROW EXECUTE FUNCTION fn_refresh_stable_occupied();
+
+-- Refresh client.horse_count whenever a horse row changes
+CREATE TRIGGER trg_horses_client_count
+    AFTER INSERT OR UPDATE OF owner_id, is_active OR DELETE ON horses
+    FOR EACH ROW EXECUTE FUNCTION fn_refresh_client_horse_count();
+
+-- Refresh client.stable_count whenever a stable row changes
+CREATE TRIGGER trg_stables_client_count
+    AFTER INSERT OR UPDATE OF owner_id OR DELETE ON stables
+    FOR EACH ROW EXECUTE FUNCTION fn_refresh_client_stable_count();

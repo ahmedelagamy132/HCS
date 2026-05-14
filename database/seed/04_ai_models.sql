@@ -78,25 +78,6 @@ INSERT INTO ai_training_jobs (model_id, triggered_by, status, reason, dataset_si
    847, 721, 88.3
   );
 
--- ── Sample epochs for the training job ───────────────────────
-DO $$
-DECLARE
-  job_id UUID;
-BEGIN
-  SELECT id INTO job_id FROM ai_training_jobs WHERE model_id = 'f0000001-0000-0000-0000-000000000006' LIMIT 1;
-  INSERT INTO ai_training_epochs (job_id, epoch, train_accuracy, val_accuracy, train_loss, val_loss, learning_rate, duration_sec)
-  SELECT job_id,
-         gs.epoch,
-         LEAST(60 + (gs.epoch / 1000.0) * 35 + random() * 2, 99.9),
-         LEAST(55 + (gs.epoch / 1000.0) * 34 + random() * 2, 99.5),
-         GREATEST(0.8 - (gs.epoch / 1000.0) * 0.75 + random() * 0.01, 0.001),
-         GREATEST(0.9 - (gs.epoch / 1000.0) * 0.72 + random() * 0.01, 0.005),
-         0.001 * (0.5 ^ (gs.epoch / 200)),
-         18.5 + random() * 4
-  FROM   generate_series(1, 847, 5) AS gs(epoch);
-END;
-$$;
-
 -- ── Recent AI analyses (last 24h sample) ─────────────────────
 INSERT INTO ai_analyses (model_id, horse_id, analysis_type, status, confidence_score, processing_ms, triggered_by, result) VALUES
   -- Health analyses

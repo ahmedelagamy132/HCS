@@ -42,7 +42,15 @@ class Settings(BaseSettings):
     # Optional AI features
     YOLO_MODEL_PATH: str = "models/yolo/cls1s.pt"
     VLM_DEFAULT_MODEL: str = "qwen2.5vl:7b"
+    VLM_MODEL_NAMES: str = "qwen2.5vl:7b,llava-phi3,llama3.2-vision,moondream:latest"
+    DEFAULT_VLM_VIDEO_MODEL: str = "qwen2.5vl:7b"
+    DEFAULT_VLM_IMAGE_MODEL: str = "qwen2.5vl:7b"
     CHATBOT_MODEL: str = "llama3.1:8b-instruct-q4_K_S"
+    DEFAULT_CHATBOT_MODEL_NAME: str = "llama3.1:8b-instruct-q4_K_S"
+
+    # Qdrant vector database (for RAG)
+    QDRANT_URL: str = "http://localhost:6333"
+    QDRANT_COLLECTION: str = "equine_database"
 
     # RTSP cameras (format: "Name|rtsp://url", comma-separated)
     RTSP_CAMERAS: str = ""

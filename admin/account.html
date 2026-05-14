@@ -350,7 +350,7 @@
   async function loadAccount() {
     try {
       document.getElementById('account-content').classList.add('loading');
-      const res = await fetch('/api/account');
+      const res = await fetch('/api/auth/me');
       if (!res.ok) throw new Error('Failed to load account data');
       const data = await res.json();
       
@@ -384,7 +384,7 @@
         const btn = document.getElementById('btn-save-profile');
         btn.innerText = 'Saving...';
         try {
-          const res = await fetch('/api/account', {
+          const res = await fetch('/api/auth/me', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -414,7 +414,7 @@
         const pwd = document.getElementById('f-pwd').value;
         if (!pwd) return;
         try {
-          const res = await fetch('/api/account/password', {
+          const res = await fetch('/api/auth/password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ password: pwd })

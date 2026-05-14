@@ -132,6 +132,15 @@
         const formData = new FormData();
         formData.append('file', selectedFile);
 
+        function showError(msg) {
+            if (pbWrap) pbWrap.style.display = 'none';
+            if (pStat) pStat.style.display = 'none';
+            if (resContent) {
+                resContent.innerHTML = `<span style="color:#ff6b6b">Error: ${msg}</span>`;
+                resContent.style.display = 'block';
+            }
+        }
+
         try {
             const resp = await fetch('/api/analyze-direct-dlc', {
                 method: 'POST',
@@ -141,85 +150,77 @@
             if (pStat) pStat.textContent = 'Finalizing rendering...';
 
             if (!resp.ok) {
-                const text = await resp.text();
-                throw new Error('Analysis failed: ' + resp.statusText + ' ' + text);
+                let detail = resp.statusText;
+                try { const j = await resp.json(); detail = j.detail || j.error || detail; } catch(_) {}
+                throw new Error(detail);
             }
 
             const data = await resp.json();
 
             setTimeout(() => {
-                pbWrap.style.display = 'none';
-                pStat.style.display = 'none';
+                try {
+                    if (pbWrap) pbWrap.style.display = 'none';
+                    if (pStat) pStat.style.display = 'none';
 
-                // Display video and overall stats
-                resContent.innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:1rem; border-bottom:1px solid rgba(196,120,32,0.1); padding-bottom:0.5rem;"><span style="color:var(--amber-lit);">Analysis Complete</span><span>Frames: ${data.total_frames || '?'} • FPS: ${data.fps ? data.fps.toFixed(1) : '?'}</span></div>`;
+                    resContent.innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:1rem; border-bottom:1px solid rgba(196,120,32,0.1); padding-bottom:0.5rem;"><span style="color:var(--amber-lit);">Analysis Complete</span><span>Frames: ${data.total_frames || '?'} • FPS: ${data.fps ? data.fps.toFixed(1) : '?'}</span></div>`;
+                    resContent.style.display = 'block';
 
-                const outputVid = document.createElement('video');
-                outputVid.id = 'dlc-output-video';
-                outputVid.src = data.download_url;
-                outputVid.controls = true;
-                outputVid.autoplay = true;
-                outputVid.loop = true;
-                outputVid.style.width = '100%';
-                outputVid.style.borderRadius = '4px';
+                    if (data.download_url) {
+                        const outputVid = document.createElement('video');
+                        outputVid.id = 'dlc-output-video';
+                        outputVid.src = data.download_url;
+                        outputVid.controls = true;
+                        outputVid.autoplay = true;
+                        outputVid.loop = true;
+                        outputVid.style.cssText = 'width:100%; border-radius:4px; margin-top:.5rem;';
+                        resContent.appendChild(outputVid);
+                    }
 
-                resContent.parentNode.appendChild(outputVid);
+                    const statsDisplay = document.createElement('div');
+                    statsDisplay.id = 'behavior-stats-display';
+                    statsDisplay.style.cssText = 'display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin-top:1.5rem;';
 
-                // Display behavior statistics
-                const statsDisplay = document.createElement('div');
-                statsDisplay.id = 'behavior-stats-display';
-                statsDisplay.style.display = 'grid';
-                statsDisplay.style.gridTemplateColumns = 'repeat(2, 1fr)';
-                statsDisplay.style.gap = '1rem';
-                statsDisplay.style.marginTop = '1.5rem';
+                    if (data.behavior_statistics) {
+                        const behaviors = [
+                            { name: 'Standing',            color: '#4E9468' },
+                            { name: 'Walking',             color: '#C47820' },
+                            { name: 'Running/Trotting',    color: '#E09830' },
+                            { name: 'Lying Down',          color: '#C04040' },
+                            { name: 'Eating/Drinking',     color: '#4E9468' },
+                            { name: 'Turning',             color: '#A39273' },
+                            { name: 'Rearing',             color: '#C04040' },
+                            { name: 'Head Shaking',        color: '#9A8A70' },
+                            { name: 'Grooming/Scratching', color: '#7A4C12' },
+                            { name: 'Kicking',             color: '#C04040' },
+                            { name: 'Tail Swishing',       color: '#E09830' }
+                        ];
+                        behaviors.forEach(b => {
+                            const stats = data.behavior_statistics[b.name];
+                            if (stats) {
+                                statsDisplay.innerHTML += `
+                                <div style="background:var(--bg3); border:1px solid rgba(196,120,32,.12); padding:1rem; border-radius:4px;">
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                                        <span style="font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--cream-dim);">${b.name}</span>
+                                        <span style="color:${b.color}; font-weight:bold; font-size:0.8rem;">${stats.percentage.toFixed(1)}%</span>
+                                    </div>
+                                    <div style="width:100%; height:4px; background:var(--bg2); border-radius:2px;">
+                                        <div style="width:${stats.percentage}%; height:100%; background:${b.color}; border-radius:2px;"></div>
+                                    </div>
+                                    <div style="font-size:0.55rem; color:var(--cream-faint); margin-top:0.5rem; text-align:right;">${stats.frames} frames</div>
+                                </div>`;
+                            }
+                        });
+                    }
 
-                if (data.behavior_statistics) {
-                    const behaviors = [
-                        { name: 'Standing',  color: '#4E9468' },
-                        { name: 'Walking',  color: '#C47820' },
-                        { name: 'Running/Trotting',  color: '#E09830' },
-                        { name: 'Lying Down',  color: '#C04040' },
-                        { name: 'Eating/Drinking',  color: '#4E9468' },
-                        { name: 'Turning',  color: '#A39273' },
-                        { name: 'Rearing', color: '#C04040' },
-                        { name: 'Head Shaking',  color: '#9A8A70' },
-                        { name: 'Grooming/Scratching',  color: '#7A4C12' },
-                        { name: 'Kicking',  color: '#C04040' },
-                        { name: 'Tail Swishing',  color: '#E09830' }
-                    ];
+                    if (statsDisplay.innerHTML.trim()) resContent.appendChild(statsDisplay);
 
-                    behaviors.forEach(b => {
-                        const stats = data.behavior_statistics[b.name];
-                        if (stats) {
-                            const statHTML = `
-                            <div style="background:var(--bg3); border:1px solid rgba(196,120,32,.12); padding:1rem; border-radius:4px;">
-                                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
-                                    <span style="font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--cream-dim);">${b.name}</span>
-                                    <span style="color:${b.color}; font-weight:bold; font-size:0.8rem;">${stats.percentage.toFixed(1)}%</span>
-                                </div>
-                                <div style="width:100%; height:4px; background:var(--bg2); border-radius:2px;">
-                                    <div style="width:${stats.percentage}%; height:100%; background:${b.color}; border-radius:2px;"></div>
-                                </div>
-                                <div style="font-size:0.55rem; color:var(--cream-faint); margin-top:0.5rem; text-align:right;">${stats.frames} frames</div>
-                            </div>
-                            `;
-                            statsDisplay.innerHTML += statHTML;
-                        }
-                    });
+                } catch (renderErr) {
+                    showError('Render error: ' + renderErr.message);
                 }
-                
-                if(statsDisplay.innerHTML !== '') {
-                    resContent.parentNode.appendChild(statsDisplay);
-                }
-
             }, 600);
 
         } catch (err) {
-            if(intv) clearInterval(intv);
-            pStat.style.display = 'none';
-            pbFill.style.width = '0%';
-            resContent.innerHTML = `<span style="color:#ff6b6b">Error: ${err.message}</span>`;
-            resContent.style.display = 'block';
+            showError(err.message);
         } finally {
             runBtn.disabled = false;
         }

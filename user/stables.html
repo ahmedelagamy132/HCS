@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Stables — HCS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #080603;
+    --bg2:         #100D07;
+    --bg3:         #18130C;
+    --bg4:         #1F1910;
+    --amber:       #C47820;
+    --amber-lit:   #E09830;
+    --amber-dim:   #7A4C12;
+    --cream:       #EDE0C6;
+    --cream-dim:   #9A8A70;
+    --cream-faint: #4A4030;
+    --green:       #4E9468;
+    --danger:      #C04040;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { min-height: 100%; }
+
+  body {
+    color: var(--cream);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    position: relative;
+    background-color: #0A0704;
+    background-image:
+      radial-gradient(ellipse 1100px 780px at 88% -8%, rgba(224,152,48,.13), rgba(224,152,48,0) 55%),
+      radial-gradient(ellipse 900px 620px at 46% 24%, rgba(196,120,32,.06), rgba(196,120,32,0) 62%),
+      radial-gradient(ellipse 980px 700px at 4% 108%, rgba(0,0,0,.6), rgba(0,0,0,0) 62%),
+      radial-gradient(ellipse 1300px 900px at 105% 112%, rgba(122,76,18,.10), rgba(122,76,18,0) 55%),
+      linear-gradient(178deg, #0B0805 0%, #110C07 45%, #0A0705 100%);
+    background-attachment: fixed;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(circle at 78% 18%, rgba(224,152,48,.045), transparent 38%),
+      radial-gradient(circle at 22% 85%, rgba(78,42,14,.10), transparent 50%);
+  }
+
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999;
+  }
+
+  .topbar, main, section { position: relative; z-index: 1; }
+
+  /* ═══ TOP BAR ═══ */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(16,13,7,0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(196,120,32,.12);
+    padding: 1.1rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar::after {
+    content: '';
+    position: absolute; left: 0; right: 0; top: 100%;
+    height: 48px;
+    background: linear-gradient(to bottom, rgba(196,120,32,.08), transparent 85%);
+    pointer-events: none;
+  }
+
+  .tb-brand { display: flex; align-items: center; gap: 1.1rem; }
+
+  .wordmark {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.45rem; font-weight: 600;
+    letter-spacing: .26em; color: var(--cream);
+    text-transform: uppercase;
+  }
+  .wordmark em { color: var(--amber); font-style: normal; }
+
+  .tb-divider { width: 1px; height: 22px; background: rgba(196,120,32,.25); }
+  .tb-section {
+    font-size: .58rem; letter-spacing: .34em;
+    text-transform: uppercase; color: var(--cream-dim);
+    font-weight: 400;
+  }
+
+  .tb-right { display: flex; align-items: center; gap: 1.4rem; }
+
+  .tb-status {
+    display: inline-flex; align-items: center;
+    gap: .5rem;
+    padding: .3rem .7rem;
+    background: rgba(78,148,104,.1);
+    border: 1px solid rgba(78,148,104,.22);
+    border-radius: 20px;
+  }
+  .tb-status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .tb-status-txt {
+    font-size: .56rem; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--green);
+    font-weight: 500;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50%      { opacity: .45; }
+  }
+
+  .user-chip {
+    display: flex; align-items: center;
+    gap: .8rem;
+    padding: .35rem .7rem .35rem .45rem;
+    border: 1px solid rgba(196,120,32,.18);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+  }
+  .user-chip:hover {
+    border-color: var(--amber);
+    background: rgba(196,120,32,.06);
+  }
+
+  .user-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber) 0%, var(--amber-dim) 100%);
+    color: var(--bg);
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .user-avatar img {
+    width: 100%; height: 100%;
+    object-fit: cover; border-radius: 50%;
+  }
+  .user-name {
+    font-size: .72rem; letter-spacing: .08em;
+    color: var(--cream); font-weight: 400;
+  }
+
+  .logout-btn {
+    background: transparent;
+    border: 1px solid rgba(196,120,32,.18);
+    color: var(--cream-dim);
+    padding: .5rem 1rem;
+    font-family: 'Jost', sans-serif;
+    font-size: .55rem; font-weight: 500;
+    letter-spacing: .22em; text-transform: uppercase;
+    cursor: pointer; border-radius: 6px;
+    transition: all .2s;
+  }
+  .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* ═══ MAIN ═══ */
+  .main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 4rem 3rem 5rem;
+  }
+
+  /* ═══ HERO ═══ */
+  .hero {
+    margin-bottom: 4rem;
+    animation: fadeUp .9s cubic-bezier(.22,1,.36,1) both;
+  }
+
+  .hero-eyebrow {
+    display: flex; align-items: center;
+    gap: .75rem; margin-bottom: 1.2rem;
+  }
+  .hero-eyebrow-line { width: 38px; height: 1px; background: var(--amber); }
+  .hero-eyebrow-txt {
+    font-size: .58rem; letter-spacing: .36em;
+    text-transform: uppercase; color: var(--amber);
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.4rem, 4.5vw, 4.2rem);
+    font-weight: 300; line-height: 1.02;
+    letter-spacing: -.015em; color: var(--cream);
+    margin-bottom: 1.2rem;
+  }
+  .hero-title em { font-style: italic; color: var(--amber-lit); }
+
+  .hero-sub {
+    font-size: .9rem; font-weight: 300;
+    line-height: 1.8; letter-spacing: .05em;
+    color: var(--cream-dim); max-width: 520px;
+  }
+
+  .stats-strip {
+    display: flex; gap: 0;
+    margin-top: 2.5rem;
+    border-top: 1px solid rgba(196,120,32,.12);
+    border-bottom: 1px solid rgba(196,120,32,.12);
+    padding: 1.3rem 0;
+  }
+  .stat {
+    flex: 1; padding: 0 1.8rem;
+    border-right: 1px solid rgba(196,120,32,.08);
+  }
+  .stat:first-child { padding-left: 0; }
+  .stat:last-child  { padding-right: 0; border-right: none; }
+  .stat-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem; font-weight: 400;
+    color: var(--cream); line-height: 1;
+    letter-spacing: -.01em;
+  }
+  .stat-val em { font-style: italic; color: var(--amber-lit); }
+  .stat-label {
+    font-size: .56rem; letter-spacing: .3em;
+    text-transform: uppercase; color: var(--cream-faint);
+    margin-top: .6rem; font-weight: 400;
+  }
+
+  /* ═══ SECTION HEADER ═══ */
+  .section-head {
+    display: flex; align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 2rem; padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(196,120,32,.1);
+    animation: fadeUp .9s cubic-bezier(.22,1,.36,1) .15s both;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem; font-weight: 300;
+    letter-spacing: -.01em; color: var(--cream);
+  }
+  .section-title em { font-style: italic; color: var(--amber); }
+  .section-count {
+    font-size: .6rem; letter-spacing: .3em;
+    text-transform: uppercase; color: var(--cream-faint);
+  }
+  .section-count span { color: var(--amber-lit); font-weight: 500; }
+
+  /* ═══ STABLE CARD GRID ═══ */
+  .stables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1.8rem;
+  }
+
+  .stable-card {
+    background: linear-gradient(168deg, rgba(31,25,16,.82) 0%, rgba(16,13,7,.95) 100%);
+    border: 1px solid rgba(196,120,32,.14);
+    overflow: hidden; cursor: pointer;
+    position: relative;
+    transition: border-color .25s, transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
+    display: flex; flex-direction: column;
+    animation: fadeUp .9s cubic-bezier(.22,1,.36,1) both;
+    box-shadow:
+      0 26px 60px -28px rgba(0,0,0,.8),
+      0 10px 24px -14px rgba(122,76,18,.16),
+      inset 0 1px 0 rgba(237,224,198,.04);
+  }
+
+  .stable-card:nth-child(1) { animation-delay: .2s; }
+  .stable-card:nth-child(2) { animation-delay: .28s; }
+  .stable-card:nth-child(3) { animation-delay: .36s; }
+  .stable-card:nth-child(4) { animation-delay: .44s; }
+
+  .stable-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 18px; height: 18px;
+    border-top: 1px solid rgba(196,120,32,.4);
+    border-right: 1px solid rgba(196,120,32,.4);
+    transition: border-color .25s; z-index: 3;
+  }
+
+  .stable-card:hover {
+    border-color: var(--amber);
+    transform: translateY(-4px);
+    box-shadow: 0 24px 48px -20px rgba(0,0,0,.6), 0 0 40px -15px rgba(196,120,32,.25);
+  }
+  .stable-card:hover::before { border-color: var(--amber-lit); }
+
+  /* Image area */
+  .sc-img {
+    position: relative; height: 220px;
+    overflow: hidden; background: var(--bg3);
+  }
+  .sc-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: grayscale(20%) contrast(1.05);
+    transition: transform .6s cubic-bezier(.22,1,.36,1), filter .4s;
+  }
+  .stable-card:hover .sc-img img {
+    transform: scale(1.08);
+    filter: grayscale(0%) contrast(1.1);
+  }
+  .sc-img::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, transparent 40%, rgba(8,6,3,.85) 100%),
+      linear-gradient(135deg, rgba(196,120,32,.08) 0%, transparent 50%);
+    pointer-events: none; z-index: 1;
+  }
+
+  /* Logo chip — top left */
+  .sc-logo {
+    position: absolute;
+    top: 1rem; left: 1rem; z-index: 2;
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    background: rgba(8,6,3,.75);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(237,224,198,.18);
+    display: flex; align-items: center; justify-content: center;
+    padding: 6px;
+  }
+  .sc-logo img { width: 100%; height: 100%; object-fit: contain; }
+  .sc-logo .glyph {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 600;
+    color: var(--amber);
+  }
+
+  /* Status badge — top right */
+  .sc-badge {
+    position: absolute;
+    top: 1rem; right: 1rem; z-index: 2;
+    display: inline-flex; align-items: center;
+    gap: .5rem;
+    padding: .32rem .65rem;
+    background: rgba(8,6,3,.7);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(78,148,104,.3);
+    border-radius: 2px;
+  }
+  .sc-badge-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  .sc-badge-txt {
+    font-size: .5rem; letter-spacing: .28em;
+    text-transform: uppercase; color: var(--green);
+    font-weight: 600;
+  }
+  .sc-badge.alert {
+    border-color: rgba(192,64,64,.3);
+  }
+  .sc-badge.alert .sc-badge-dot {
+    background: var(--danger);
+    box-shadow: 0 0 6px var(--danger);
+    animation: none;
+  }
+  .sc-badge.alert .sc-badge-txt { color: var(--danger); }
+
+  /* Name overlay on image */
+  .sc-name-wrap {
+    position: absolute;
+    bottom: 1.2rem; left: 1.4rem; right: 1.4rem;
+    z-index: 2;
+  }
+  .sc-code {
+    font-size: .54rem; letter-spacing: .32em;
+    text-transform: uppercase; color: var(--amber);
+    margin-bottom: .25rem; font-weight: 500;
+  }
+  .sc-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.9rem; font-weight: 400;
+    letter-spacing: -.01em; color: var(--cream);
+    line-height: 1;
+  }
+  .sc-name em { font-style: italic; color: var(--amber-lit); }
+
+  /* Card body */
+  .sc-body {
+    padding: 1.3rem 1.4rem 1.5rem;
+    display: flex; flex-direction: column;
+    gap: .9rem;
+  }
+  .sc-location {
+    font-size: .82rem; color: var(--cream-dim);
+    letter-spacing: .04em;
+  }
+  .sc-info-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .sc-info { display: flex; flex-direction: column; gap: .3rem; }
+  .sc-info-key {
+    font-size: .5rem; letter-spacing: .28em;
+    text-transform: uppercase; color: var(--cream-faint);
+    font-weight: 500;
+  }
+  .sc-info-val {
+    font-size: .82rem; color: var(--cream);
+    letter-spacing: .04em; font-weight: 300;
+  }
+  .sc-info-val em { font-style: italic; color: var(--amber-lit); }
+
+  .sc-cta {
+    margin-top: .4rem; padding-top: 1rem;
+    border-top: 1px solid rgba(196,120,32,.1);
+    display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .sc-cta-txt {
+    font-size: .56rem; letter-spacing: .26em;
+    text-transform: uppercase; color: var(--cream-dim);
+    font-weight: 500; transition: color .2s;
+  }
+  .stable-card:hover .sc-cta-txt { color: var(--amber-lit); }
+  .sc-cta-arrow {
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--amber); font-size: 1.3rem;
+    transition: transform .3s cubic-bezier(.22,1,.36,1);
+    line-height: 1;
+  }
+  .stable-card:hover .sc-cta-arrow { transform: translateX(6px); color: var(--amber-lit); }
+
+  /* ═══ LOADING SKELETON ═══ */
+  .skeleton-card {
+    background: var(--bg2);
+    border: 1px solid rgba(196,120,32,.08);
+    overflow: hidden;
+    animation: shimmerBg 1.5s ease-in-out infinite;
+  }
+  .sk-img  { height: 220px; background: var(--bg3); }
+  .sk-body { padding: 1.3rem 1.4rem 1.5rem; display: flex; flex-direction: column; gap: .9rem; }
+  .sk-line { height: 14px; background: var(--bg3); border-radius: 3px; }
+  .sk-line.small { width: 60%; }
+  .sk-line.med   { width: 80%; }
+
+  @keyframes shimmerBg {
+    0%, 100% { opacity: .5; }
+    50%       { opacity: .8; }
+  }
+
+  /* ═══ EMPTY STATE ═══ */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center; padding: 5rem 2rem;
+    animation: fadeUp .9s cubic-bezier(.22,1,.36,1) .2s both;
+  }
+  .empty-icon {
+    width: 64px; height: 64px; margin: 0 auto 1.5rem;
+    border: 1px solid rgba(196,120,32,.25);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .empty-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem; font-weight: 300;
+    color: var(--cream); margin-bottom: .6rem;
+  }
+  .empty-sub { font-size: .78rem; color: var(--cream-dim); letter-spacing: .05em; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 700px) {
+    .topbar { padding: 1rem 1.3rem; }
+    .tb-section, .tb-divider, .tb-status { display: none; }
+    .main { padding: 2.5rem 1.3rem 3rem; }
+    .stats-strip { flex-wrap: wrap; gap: 1rem; border: none; padding: 0; }
+    .stat { flex: 1 1 45%; padding: 1rem; border: 1px solid rgba(196,120,32,.1); }
+    .stables-grid { grid-template-columns: 1fr; gap: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ TOP BAR ═══ -->
+<header class="topbar">
+  <div class="tb-brand">
+    <div class="wordmark">H<em>C</em>S</div>
+    <div class="tb-divider"></div>
+    <div class="tb-section">Owner Portal</div>
+  </div>
+  <div class="tb-right">
+    <div class="tb-status">
+      <div class="tb-status-dot"></div>
+      <div class="tb-status-txt">All Systems Online</div>
+    </div>
+    <div class="user-chip" id="userChip">
+      <div class="user-avatar" id="userAvatar">Y</div>
+      <div class="user-name" id="userName">Owner</div>
+    </div>
+    <button class="logout-btn" id="logoutBtn">Sign Out</button>
+  </div>
+</header>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-eyebrow">
+      <div class="hero-eyebrow-line"></div>
+      <div class="hero-eyebrow-txt">Welcome back</div>
+    </div>
+    <h1 class="hero-title">Your <em>stables,</em><br>at a glance.</h1>
+    <p class="hero-sub">
+      Select a stable to view the horses under its care. Live monitoring, health insights, and care logs follow each animal.
+    </p>
+
+  </section>
+
+  <!-- Section header -->
+  <div class="section-head">
+    <h2 class="section-title">My <em>Stables</em></h2>
+    <div class="section-count"><span id="countTxt">—</span> · Registered</div>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div class="stables-grid" id="skeletonGrid">
+    <div class="skeleton-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line med"></div><div class="sk-line small"></div><div class="sk-line" style="width:40%"></div></div></div>
+    <div class="skeleton-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line med"></div><div class="sk-line small"></div><div class="sk-line" style="width:40%"></div></div></div>
+  </div>
+
+  <!-- Stable cards -->
+  <div class="stables-grid" id="stablesGrid" style="display:none;"></div>
+
+</main>
+
+<script>
+  const token = localStorage.getItem('userToken');
+  if (!token) window.location.href = '/user/login';
+
+  const userName = localStorage.getItem('userName') || 'Owner';
+  const userPhoto = localStorage.getItem('userPhoto');
+  const avatarEl = document.getElementById('userAvatar');
+  if (userPhoto) {
+    avatarEl.innerHTML = `<img src="${userPhoto}" alt="${userName}">`;
+  } else {
+    const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+    avatarEl.textContent = initials || 'Y';
+  }
+  document.getElementById('userName').textContent = userName;
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    try {
+      await fetch('/api/user/logout', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+    } catch (e) {}
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userPhoto');
+    window.location.href = '/user/login';
+  });
+
+  function logoHtml(s) {
+    if (s.logo) return `<div class="sc-logo"><img src="${s.logo}" alt="${s.name}"></div>`;
+    const letter = (s.name || '?').charAt(0).toUpperCase();
+    return `<div class="sc-logo"><span class="glyph">${letter}</span></div>`;
+  }
+
+  function locationLine(s) {
+    return [s.city, s.region, s.country].filter(Boolean).join(' · ') || 'Location not set';
+  }
+
+  function renderStables(stables) {
+    const skeleton = document.getElementById('skeletonGrid');
+    const grid     = document.getElementById('stablesGrid');
+    skeleton.style.display = 'none';
+
+    const total   = stables.length;
+    const horses  = stables.reduce((a, s) => a + (s.horse_count || 0), 0);
+    const alerts  = stables.reduce((a, s) => a + (s.attention_count || 0), 0);
+    const healthy = stables.filter(s => (s.attention_count || 0) === 0).length;
+
+    document.getElementById('statStables').textContent  = total || '0';
+    document.getElementById('statHorses').textContent   = horses;
+    document.getElementById('statHealthy').textContent  = healthy;
+    document.getElementById('statWatch').innerHTML      = `<em>${alerts}</em>`;
+    document.getElementById('countTxt').textContent     = total;
+
+    if (!stables.length) {
+      grid.style.display = 'grid';
+      grid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C47820" stroke-width="1.5">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div class="empty-title">No stables yet</div>
+          <div class="empty-sub">Once horses are registered to your account, their stables will appear here.</div>
+        </div>`;
+      return;
+    }
+
+    grid.style.display = 'grid';
+    grid.innerHTML = stables.map(s => {
+      const isAlert = (s.attention_count || 0) > 0;
+      const badgeClass = isAlert ? 'sc-badge alert' : 'sc-badge';
+      const badgeTxt   = isAlert ? `${s.attention_count} Need Attention` : 'All Healthy';
+      const name = s.name || 'Unnamed';
+      const nameHtml = name.charAt(0) + `<em>${name.slice(1)}</em>`;
+      return `
+        <article class="stable-card" data-code="${s.code}">
+          <div class="sc-img">
+            <img src="${s.image}" alt="${name}" loading="lazy">
+            ${logoHtml(s)}
+            <div class="${badgeClass}">
+              <div class="sc-badge-dot"></div>
+              <div class="sc-badge-txt">${badgeTxt}</div>
+            </div>
+            <div class="sc-name-wrap">
+              <div class="sc-code">${s.code}</div>
+              <div class="sc-name">${nameHtml}</div>
+            </div>
+          </div>
+          <div class="sc-body">
+            <div class="sc-location">${locationLine(s)}</div>
+            <div class="sc-info-row">
+              <div class="sc-info">
+                <div class="sc-info-key">Horses</div>
+                <div class="sc-info-val">${s.horse_count}</div>
+              </div>
+              <div class="sc-info">
+                <div class="sc-info-key">Watching</div>
+                <div class="sc-info-val">${isAlert ? `<em>${s.attention_count}</em>` : '0'}</div>
+              </div>
+            </div>
+            <div class="sc-cta">
+              <div class="sc-cta-txt">View Stable</div>
+              <div class="sc-cta-arrow">&rarr;</div>
+            </div>
+          </div>
+        </article>`;
+    }).join('');
+
+    grid.querySelectorAll('.stable-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const code = card.getAttribute('data-code');
+        window.location.href = '/user/dashboard?stable=' + encodeURIComponent(code);
+      });
+    });
+  }
+
+  async function loadStables() {
+    try {
+      const res = await fetch('/api/user/stables', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.status === 401) {
+        localStorage.removeItem('userToken');
+        window.location.href = '/user/login';
+        return;
+      }
+      if (!res.ok) throw new Error();
+      renderStables(await res.json());
+    } catch (e) {
+      renderStables([]);
+    }
+  }
+
+  loadStables();
+</script>
+</body>
+</html>

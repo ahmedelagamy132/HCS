@@ -43,16 +43,6 @@ BEGIN;
 -- â”€â”€ 8. AI tables â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 \ir schema/08_tables_ai.sql
 
--- â”€â”€ Add deferred FK: health_alerts â†’ ai_models â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-ALTER TABLE health_alerts
-    ADD CONSTRAINT fk_alerts_ai_model
-    FOREIGN KEY (ai_model_id) REFERENCES ai_models(id) ON DELETE SET NULL;
-
--- â”€â”€ Add deferred FK: horse_health_records â†’ health_alerts â”€â”€â”€
-ALTER TABLE horse_health_records
-    ADD CONSTRAINT fk_health_rec_alert
-    FOREIGN KEY (triggered_by_alert) REFERENCES health_alerts(id) ON DELETE SET NULL;
-
 -- â”€â”€ 9. System tables â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 \ir schema/09_tables_system.sql
 

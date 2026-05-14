@@ -128,6 +128,67 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- ── Refresh client.horse_count when horses change ───────────
+CREATE OR REPLACE FUNCTION fn_refresh_client_horse_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'DELETE' THEN
+        IF OLD.owner_id IS NOT NULL THEN
+            UPDATE clients SET horse_count = (
+                SELECT COUNT(*) FROM horses
+                WHERE owner_id = OLD.owner_id AND is_active = TRUE
+            ) WHERE id = OLD.owner_id;
+        END IF;
+        RETURN OLD;
+    ELSE
+        -- Update old owner if ownership changed
+        IF OLD.owner_id IS DISTINCT FROM NEW.owner_id AND OLD.owner_id IS NOT NULL THEN
+            UPDATE clients SET horse_count = (
+                SELECT COUNT(*) FROM horses
+                WHERE owner_id = OLD.owner_id AND is_active = TRUE
+            ) WHERE id = OLD.owner_id;
+        END IF;
+        -- Update new owner
+        IF NEW.owner_id IS NOT NULL THEN
+            UPDATE clients SET horse_count = (
+                SELECT COUNT(*) FROM horses
+                WHERE owner_id = NEW.owner_id AND is_active = TRUE
+            ) WHERE id = NEW.owner_id;
+        END IF;
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ── Refresh client.stable_count when stables change ─────────
+CREATE OR REPLACE FUNCTION fn_refresh_client_stable_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'DELETE' THEN
+        IF OLD.owner_id IS NOT NULL THEN
+            UPDATE clients SET stable_count = (
+                SELECT COUNT(*) FROM stables WHERE owner_id = OLD.owner_id
+            ) WHERE id = OLD.owner_id;
+        END IF;
+        RETURN OLD;
+    ELSE
+        -- Update old owner if ownership changed
+        IF OLD.owner_id IS DISTINCT FROM NEW.owner_id AND OLD.owner_id IS NOT NULL THEN
+            UPDATE clients SET stable_count = (
+                SELECT COUNT(*) FROM stables WHERE owner_id = OLD.owner_id
+            ) WHERE id = OLD.owner_id;
+        END IF;
+        -- Update new owner
+        IF NEW.owner_id IS NOT NULL THEN
+            UPDATE clients SET stable_count = (
+                SELECT COUNT(*) FROM stables WHERE owner_id = NEW.owner_id
+            ) WHERE id = NEW.owner_id;
+        END IF;
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
 -- ── Hash password helper ────────────────────────────────────
 CREATE OR REPLACE FUNCTION fn_hash_password(plain TEXT)
 RETURNS TEXT AS $$

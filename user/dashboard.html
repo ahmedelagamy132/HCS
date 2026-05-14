@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Stable — HCS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #080603;
+    --bg2:         #100D07;
+    --bg3:         #18130C;
+    --bg4:         #1F1910;
+    --amber:       #C47820;
+    --amber-lit:   #E09830;
+    --amber-dim:   #7A4C12;
+    --cream:       #EDE0C6;
+    --cream-dim:   #9A8A70;
+    --cream-faint: #4A4030;
+    --green:       #4E9468;
+    --green-dim:   #2A5A3A;
+    --danger:      #C04040;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { min-height: 100%; }
+
+  body {
+    color: var(--cream);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    position: relative;
+    background-color: #0A0704;
+    background-image:
+      radial-gradient(ellipse 1100px 780px at 88% -8%, rgba(224,152,48,.13), rgba(224,152,48,0) 55%),
+      radial-gradient(ellipse 900px 620px at 46% 24%, rgba(196,120,32,.06), rgba(196,120,32,0) 62%),
+      radial-gradient(ellipse 980px 700px at 4% 108%, rgba(0,0,0,.6), rgba(0,0,0,0) 62%),
+      radial-gradient(ellipse 1300px 900px at 105% 112%, rgba(122,76,18,.10), rgba(122,76,18,0) 55%),
+      linear-gradient(178deg, #0B0805 0%, #110C07 45%, #0A0705 100%);
+    background-attachment: fixed;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(circle at 78% 18%, rgba(224,152,48,.045), transparent 38%),
+      radial-gradient(circle at 22% 85%, rgba(78,42,14,.10), transparent 50%);
+  }
+
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999;
+  }
+
+  .topbar, main, section { position: relative; z-index: 1; }
+
+  /* ═══ TOP BAR ═══ */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(16,13,7,0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(196,120,32,.12);
+    padding: 1.1rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar::after {
+    content: '';
+    position: absolute; left: 0; right: 0; top: 100%;
+    height: 48px;
+    background: linear-gradient(to bottom, rgba(196,120,32,.08), transparent 85%);
+    pointer-events: none;
+  }
+
+  .tb-brand { display: flex; align-items: center; gap: 1.1rem; }
+
+  .wordmark {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.45rem; font-weight: 600;
+    letter-spacing: .26em; color: var(--cream);
+    text-transform: uppercase;
+  }
+  .wordmark em { color: var(--amber); font-style: normal; }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: .45rem;
+    text-decoration: none;
+    color: var(--cream-dim);
+    border: 1px solid rgba(196,120,32,.18);
+    background: rgba(196,120,32,.04);
+    padding: .42rem .9rem .42rem .7rem;
+    border-radius: 100px;
+    font-size: .72rem; letter-spacing: .15em; text-transform: uppercase;
+    transition: color .18s, border-color .18s, background .18s;
+    margin-right: .4rem;
+  }
+  .back-link:hover {
+    color: var(--amber);
+    border-color: var(--amber);
+    background: rgba(196,120,32,.08);
+  }
+
+  .tb-divider { width: 1px; height: 22px; background: rgba(196,120,32,.25); }
+
+  .tb-section {
+    font-size: .58rem; letter-spacing: .34em;
+    text-transform: uppercase; color: var(--cream-dim);
+    font-weight: 400;
+  }
+
+  .tb-right { display: flex; align-items: center; gap: 1.4rem; }
+
+  .tb-status {
+    display: inline-flex; align-items: center;
+    gap: .5rem;
+    padding: .3rem .7rem;
+    background: rgba(78,148,104,.1);
+    border: 1px solid rgba(78,148,104,.22);
+    border-radius: 20px;
+  }
+  .tb-status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .tb-status-txt {
+    font-size: .56rem; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--green);
+    font-weight: 500;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50%      { opacity: .45; }
+  }
+
+  .user-chip {
+    display: flex; align-items: center;
+    gap: .8rem;
+    padding: .35rem .7rem .35rem .45rem;
+    border: 1px solid rgba(196,120,32,.18);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+  }
+  .user-chip:hover {
+    border-color: var(--amber);
+    background: rgba(196,120,32,.06);
+  }
+
+  .user-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber) 0%, var(--amber-dim) 100%);
+    color: var(--bg);
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+
+  .user-avatar img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  .user-name {
+    font-size: .72rem; letter-spacing: .08em;
+    color: var(--cream); font-weight: 400;
+  }
+
+  .logout-btn {
+    background: transparent;
+    border: 1px solid rgba(196,120,32,.18);
+    color: var(--cream-dim);
+    padding: .5rem 1rem;
+    font-family: 'Jost', sans-serif;
+    font-size: .55rem; font-weight: 500;
+    letter-spacing: .22em; text-transform: uppercase;
+    cursor: pointer; border-radius: 6px;
+    transition: all .2s;
+  }
+  .logout-btn:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
+  /* ═══ MAIN CONTENT ═══ */
+  .main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 4rem 3rem 5rem;
+  }
+
+  .hero {
+    margin-bottom: 4rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    animation: fadeUp .9s cubic-bezier(.22,1,.36,1) both;
+  }
+
+  .hero-text { flex: 1; min-width: 0; }
+
+  /* ── Profile photo ── */
+  .hero-profile {
+    flex-shrink: 0;
+    position: relative;
+    width: 220px;
+    order: 2;
+  }
+
+  .hero-profile-ring {
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    padding: 3px;
+    background: conic-gradient(
+      var(--amber) 0deg,
+      var(--amber-dim) 120deg,
+      transparent 200deg,
+      var(--amber-dim) 280deg,
+      var(--amber) 360deg
+    );
+    animation: spinRing 12s linear infinite;
+    position: relative;
+  }
+
+  @keyframes spinRing {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .hero-profile-inner {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--bg3);
+    border: 2px solid var(--bg);
+    animation: spinRing 12s linear infinite reverse;
+  }
+
+  .hero-profile-inner img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+    filter: contrast(1.04) saturate(1.05);
+  }
+
+  .hero-profile-badge {
+    position: absolute;
+    bottom: 8px; right: 8px;
+    background: var(--bg2);
+    border: 1px solid rgba(196,120,32,.3);
+    border-radius: 20px;
+    padding: .28rem .75rem;
+    display: flex; align-items: center; gap: .45rem;
+  }
+
+  .hero-profile-badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+  }
+
+  .hero-profile-badge-txt {
+    font-size: .5rem; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--cream-dim);
+    font-weight: 400;
+  }
+
+  .hero-eyebrow {
+    display: flex; align-items: center;
+    gap: .75rem; margin-bottom: 1.2rem;
+  }
+  .hero-eyebrow-line { width: 38px; height: 1px; background: var(--amber); }
+  .hero-eyebrow-txt {
+    font-size: .58rem; letter-spacing: .36em;
+    text-transform: uppercase; color: var(--amber);
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.4rem, 4.5vw, 4.2rem);
+    font-weight: 300; line-height: 1.02;
+    letter-spacing: -.015em; color: var(--cream);
+    margin-bottom: 1.2rem;
+  }
+  .hero-title em { font-style: italic; color: var(--amber-lit); }
+
+  .hero-sub {
+    font-size: .9rem; font-weight: 300;
+    line-height: 1.8; letter-spacing: .05em;
+    color: var(--cream-dim); max-width: 480px;
+  }
+
+  .stats-strip {
+    display: flex; gap: 0;
+    margin-top: 2.5rem;
+    border-top: 1px solid rgba(196,120,32,.12);
+    border-bottom: 1px solid rgba(196,120,32,.12);
+    padding: 1.3rem 0;
+  }
+  .stat {
+    flex: 1; padding: 0 1.8rem;
+    border-right: 1px solid rgba(196,120,32,.08);
+  }
+  .stat:first-child { padding-left: 0; }
+  .stat:last-child  { padding-right: 0; border-right: none; }
+
+  .stat-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem; font-weight: 400;
+    color: var(--cream); line-height: 1;
+    letter-spacing: -.01em;
+  }
+  .stat-val em { font-style: italic; color: var(--amber-lit); }
+  .stat-label {
+    font-size: .56rem; letter-spacing: .3em;
+    text-transform: uppercase; color: var(--cream-faint);
+    margin-top: .6rem; font-weight: 400;
+  }
+
+  /* ═══ SECTION HEADER ═══ */
+  .section-head {
+    display: flex; align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 2rem; padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(196,120,32,.1);
+    animation: fadeUp .9s cubic-bezier(.22,1,.36,1) .15s both;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem; font-weight: 300;
+    letter-spacing: -.01em; color: var(--cream);
+  }
+  .section-title em { font-style: italic; color: var(--amber); }
+
+  .section-count {
+    font-size: .6rem; letter-spacing: .3em;
+    text-transform: uppercase; color: var(--cream-faint);
+  }
+  .section-count span { color: var(--amber-lit); font-weight: 500; }
+
+  /* ═══ HORSE CARD GRID ═══ */
+  .horse-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.8rem;
+  }
+
+  .horse-card {
+    background: linear-gradient(168deg, rgba(31,25,16,.82) 0%, rgba(16,13,7,.95) 100%);
+    border: 1px solid rgba(196,120,32,.12);
+    overflow: hidden; cursor: pointer;
+    position: relative;
+    transition: border-color .25s, transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
+    text-decoration: none; color: inherit;
+    display: flex; flex-direction: column;
+    animation: fadeUp .9s cubic-bezier(.22,1,.36,1) both;
+    box-shadow:
+      0 26px 60px -28px rgba(0,0,0,.8),
+      0 10px 24px -14px rgba(122,76,18,.16),
+      inset 0 1px 0 rgba(237,224,198,.04);
+  }
+
+  .horse-card:nth-child(1) { animation-delay: .2s; }
+  .horse-card:nth-child(2) { animation-delay: .28s; }
+  .horse-card:nth-child(3) { animation-delay: .36s; }
+  .horse-card:nth-child(4) { animation-delay: .44s; }
+  .horse-card:nth-child(5) { animation-delay: .52s; }
+  .horse-card:nth-child(6) { animation-delay: .60s; }
+
+  .horse-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 18px; height: 18px;
+    border-top: 1px solid rgba(196,120,32,.4);
+    border-right: 1px solid rgba(196,120,32,.4);
+    transition: border-color .25s; z-index: 3;
+  }
+
+  .horse-card:hover {
+    border-color: var(--amber);
+    transform: translateY(-4px);
+    box-shadow: 0 24px 48px -20px rgba(0,0,0,.6), 0 0 40px -15px rgba(196,120,32,.25);
+  }
+  .horse-card:hover::before { border-color: var(--amber-lit); }
+
+  .hc-img {
+    position: relative; height: 220px;
+    overflow: hidden; background: var(--bg3);
+  }
+  .hc-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: grayscale(20%) contrast(1.05);
+    transition: transform .6s cubic-bezier(.22,1,.36,1), filter .4s;
+  }
+  .horse-card:hover .hc-img img {
+    transform: scale(1.08);
+    filter: grayscale(0%) contrast(1.1);
+  }
+
+  .hc-img::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, transparent 40%, rgba(8,6,3,.85) 100%),
+      linear-gradient(135deg, rgba(196,120,32,.08) 0%, transparent 50%);
+    pointer-events: none; z-index: 1;
+  }
+
+  .hc-live {
+    position: absolute;
+    top: 1rem; left: 1rem; z-index: 2;
+    display: inline-flex; align-items: center;
+    gap: .5rem;
+    padding: .32rem .65rem;
+    background: rgba(8,6,3,.7);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(78,148,104,.3);
+    border-radius: 2px;
+  }
+  .hc-live-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  .hc-live-txt {
+    font-size: .5rem; letter-spacing: .28em;
+    text-transform: uppercase; color: var(--green);
+    font-weight: 600;
+  }
+
+  .hc-live.offline { border-color: rgba(192,64,64,.3); }
+  .hc-live.offline .hc-live-dot { background: var(--danger); box-shadow: 0 0 6px var(--danger); animation: none; }
+  .hc-live.offline .hc-live-txt { color: var(--danger); }
+
+  .hc-health {
+    position: absolute;
+    top: 1rem; right: 1rem; z-index: 2;
+    padding: .3rem .6rem;
+    font-size: .48rem; letter-spacing: .22em;
+    text-transform: uppercase; font-weight: 600;
+    border-radius: 2px; backdrop-filter: blur(8px);
+  }
+  .hc-health.excellent { background: rgba(78,148,104,.2); color: var(--green); border: 1px solid rgba(78,148,104,.3); }
+  .hc-health.observation { background: rgba(196,120,32,.2); color: var(--amber-lit); border: 1px solid rgba(196,120,32,.3); }
+  .hc-health.critical { background: rgba(192,64,64,.2); color: var(--danger); border: 1px solid rgba(192,64,64,.3); }
+
+  .hc-name-wrap {
+    position: absolute;
+    bottom: 1.2rem; left: 1.4rem; right: 1.4rem;
+    z-index: 2;
+  }
+  .hc-code {
+    font-size: .54rem; letter-spacing: .32em;
+    text-transform: uppercase; color: var(--amber);
+    margin-bottom: .25rem; font-weight: 500;
+  }
+  .hc-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.9rem; font-weight: 400;
+    letter-spacing: -.01em; color: var(--cream);
+    line-height: 1;
+  }
+  .hc-name em { font-style: italic; color: var(--amber-lit); }
+
+  .hc-body {
+    padding: 1.3rem 1.4rem 1.5rem;
+    display: flex; flex-direction: column;
+    gap: .9rem;
+  }
+
+  .hc-info-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .hc-info { display: flex; flex-direction: column; gap: .3rem; }
+  .hc-info-key {
+    font-size: .5rem; letter-spacing: .28em;
+    text-transform: uppercase; color: var(--cream-faint);
+    font-weight: 500;
+  }
+  .hc-info-val {
+    font-size: .82rem; color: var(--cream);
+    letter-spacing: .04em; font-weight: 300;
+  }
+
+  .hc-cta {
+    margin-top: .4rem; padding-top: 1rem;
+    border-top: 1px solid rgba(196,120,32,.1);
+    display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .hc-cta-txt {
+    font-size: .56rem; letter-spacing: .26em;
+    text-transform: uppercase; color: var(--cream-dim);
+    font-weight: 500; transition: color .2s;
+  }
+  .horse-card:hover .hc-cta-txt { color: var(--amber-lit); }
+
+  .hc-cta-arrow {
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--amber); font-size: 1.3rem;
+    transition: transform .3s cubic-bezier(.22,1,.36,1);
+    line-height: 1;
+  }
+  .horse-card:hover .hc-cta-arrow {
+    transform: translateX(6px);
+    color: var(--amber-lit);
+  }
+
+  /* ═══ LOADING SKELETON ═══ */
+  .skeleton-card {
+    background: var(--bg2);
+    border: 1px solid rgba(196,120,32,.08);
+    overflow: hidden;
+    animation: shimmerBg 1.5s ease-in-out infinite;
+  }
+  .sk-img { height: 220px; background: var(--bg3); }
+  .sk-body { padding: 1.3rem 1.4rem 1.5rem; display: flex; flex-direction: column; gap: .9rem; }
+  .sk-line { height: 14px; background: var(--bg3); border-radius: 3px; }
+  .sk-line.small { width: 60%; }
+  .sk-line.med   { width: 80%; }
+
+  @keyframes shimmerBg {
+    0%, 100% { opacity: .5; }
+    50%      { opacity: .8; }
+  }
+
+  /* ═══ EMPTY STATE ═══ */
+  .empty-state {
+    text-align: center; padding: 5rem 2rem;
+    animation: fadeUp .9s cubic-bezier(.22,1,.36,1) .2s both;
+  }
+  .empty-icon {
+    width: 64px; height: 64px; margin: 0 auto 1.5rem;
+    border: 1px solid rgba(196,120,32,.25);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .empty-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem; font-weight: 300;
+    color: var(--cream); margin-bottom: .6rem;
+  }
+  .empty-sub {
+    font-size: .78rem; color: var(--cream-dim);
+    letter-spacing: .05em;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 900px) {
+    .hero { flex-direction: column-reverse; gap: 2rem; }
+    .hero-profile { width: 160px; }
+    .hero-profile-ring { width: 160px; height: 160px; }
+  }
+
+  @media (max-width: 700px) {
+    .topbar { padding: 1rem 1.3rem; }
+    .tb-section, .tb-divider { display: none; }
+    .main { padding: 2.5rem 1.3rem 3rem; }
+    .stats-strip { flex-wrap: wrap; gap: 1rem; border: none; padding: 0; }
+    .stat { flex: 1 1 45%; padding: 1rem; border: 1px solid rgba(196,120,32,.1); }
+    .horse-grid { grid-template-columns: 1fr; gap: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ TOP BAR ═══ -->
+<header class="topbar">
+  <div class="tb-brand">
+    <a href="/user/stables" class="back-link" id="backLink" title="Back to stables" style="display:none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <span>Stables</span>
+    </a>
+    <div class="wordmark"><em>H</em>CS</div>
+    <div class="tb-divider"></div>
+    <div class="tb-section" id="tbSection">Owner Portal</div>
+  </div>
+
+  <div class="tb-right">
+    <div class="tb-status">
+      <div class="tb-status-dot"></div>
+      <div class="tb-status-txt">All Systems Online</div>
+    </div>
+    <div class="user-chip" id="userChip">
+      <div class="user-avatar" id="userAvatar">Y</div>
+      <div class="user-name" id="userName">Youssef Galal</div>
+    </div>
+    <button class="logout-btn" id="logoutBtn">Sign Out</button>
+  </div>
+</header>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+
+  <!-- Hero -->
+  <section class="hero">
+
+    <!-- Left: text + stats -->
+    <div class="hero-text">
+      <div class="hero-eyebrow">
+        <div class="hero-eyebrow-line"></div>
+        <div class="hero-eyebrow-txt" id="greeting">Good evening, Youssef</div>
+      </div>
+      <h1 class="hero-title">
+        Your horses,<br>
+        under <em>watchful</em> eyes.
+      </h1>
+      <p class="hero-sub">
+        Live monitoring, health intelligence, and stable insights — personalised for the animals in your care.
+      </p>
+
+    <div class="stats-strip">
+      <div class="stat">
+        <div class="stat-val" id="statTotal">1</div>
+        <div class="stat-label">Horses Owned</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="statLive"><em>1</em></div>
+        <div class="stat-label">Live Feeds</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="statHealthy">1</div>
+        <div class="stat-label">Healthy</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="statAlerts"><em>0</em></div>
+        <div class="stat-label">Active Alerts</div>
+      </div>
+    </div>
+    </div><!-- end .hero-text -->
+
+    <!-- Right: profile photo -->
+    <div class="hero-profile" id="heroProfile" style="display:none;">
+      <div class="hero-profile-ring">
+        <div class="hero-profile-inner">
+          <img id="heroProfileImg" src="" alt="Youssef Galal">
+        </div>
+      </div>
+      <div class="hero-profile-badge">
+        <div class="hero-profile-badge-dot"></div>
+        <div class="hero-profile-badge-txt">Owner</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Section head -->
+  <div class="section-head">
+    <h2 class="section-title">My <em>Stable</em></h2>
+    <div class="section-count"><span id="countTxt">4</span> · Active Registrations</div>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div class="horse-grid" id="skeletonGrid">
+    <div class="skeleton-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line med"></div><div class="sk-line small"></div><div class="sk-line" style="width:40%"></div></div></div>
+    <div class="skeleton-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line med"></div><div class="sk-line small"></div><div class="sk-line" style="width:40%"></div></div></div>
+    <div class="skeleton-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line med"></div><div class="sk-line small"></div><div class="sk-line" style="width:40%"></div></div></div>
+  </div>
+
+  <!-- Horse cards -->
+  <div class="horse-grid" id="horseGrid" style="display:none;">
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <div class="empty-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C47820" stroke-width="1.5">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+    </div>
+    <div class="empty-title">No horses registered</div>
+    <div class="empty-sub">Contact your stable administrator to register a horse.</div>
+  </div>
+
+</main>
+
+<script>
+  const HEALTH_LABEL = {
+    excellent: 'Healthy',
+    observation: 'Observation',
+    critical: 'Critical'
+  };
+
+  const token = localStorage.getItem('userToken');
+  const userName = localStorage.getItem('userName') || 'Youssef Galal';
+
+  // Auth check
+  if (!token) {
+    window.location.href = '/user/login';
+  }
+
+  // Set user info
+  const userPhoto = localStorage.getItem('userPhoto');
+  const avatarEl = document.getElementById('userAvatar');
+  if (userPhoto) {
+    avatarEl.innerHTML = `<img src="${userPhoto}" alt="${userName}">`;
+    // Show large hero profile photo
+    const heroProfile = document.getElementById('heroProfile');
+    const heroProfileImg = document.getElementById('heroProfileImg');
+    heroProfileImg.src = userPhoto;
+    heroProfile.style.display = 'block';
+  } else {
+    const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+    avatarEl.textContent = initials || 'Y';
+  }
+  document.getElementById('userName').textContent = userName;
+
+  // Greeting based on time
+  const hour = new Date().getHours();
+  const timeGreeting = hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : 'Evening';
+  document.getElementById('greeting').textContent = `Good ${timeGreeting}, ${userName.split(' ')[0]}`;
+
+  function renderCards(horses) {
+    const grid = document.getElementById('horseGrid');
+    const skeleton = document.getElementById('skeletonGrid');
+    const empty = document.getElementById('emptyState');
+
+    skeleton.style.display = 'none';
+
+    if (!horses || horses.length === 0) {
+      empty.style.display = 'block';
+      return;
+    }
+
+    grid.style.display = 'grid';
+    grid.innerHTML = horses.map(h => `
+      <a href="/user/horse-view?id=${h.id}" class="horse-card">
+        <div class="hc-img">
+          <img src="${h.image}" alt="${h.name}" loading="lazy">
+          <div class="hc-live ${h.stream === 'offline' ? 'offline' : ''}">
+            <div class="hc-live-dot"></div>
+            <div class="hc-live-txt">${h.stream === 'offline' ? 'Offline' : 'Live'}</div>
+          </div>
+          <div class="hc-health ${h.health}">${HEALTH_LABEL[h.health]}</div>
+          <div class="hc-name-wrap">
+            <div class="hc-code">${h.code}</div>
+            <div class="hc-name">${h.name.charAt(0)}<em>${h.name.slice(1)}</em></div>
+          </div>
+        </div>
+        <div class="hc-body">
+          <div class="hc-info-row">
+            <div class="hc-info">
+              <div class="hc-info-key">Breed</div>
+              <div class="hc-info-val">${h.breed}</div>
+            </div>
+            <div class="hc-info">
+              <div class="hc-info-key">Age</div>
+              <div class="hc-info-val">${h.age} years</div>
+            </div>
+            <div class="hc-info">
+              <div class="hc-info-key">Stable</div>
+              <div class="hc-info-val">${h.stable.split(',')[0]}</div>
+            </div>
+            <div class="hc-info">
+              <div class="hc-info-key">Last Check</div>
+              <div class="hc-info-val">${h.lastCheck}</div>
+            </div>
+          </div>
+          <div class="hc-cta">
+            <div class="hc-cta-txt">View Live Feed</div>
+            <div class="hc-cta-arrow">&rarr;</div>
+          </div>
+        </div>
+      </a>
+    `).join('');
+  }
+
+  function updateStats(horses) {
+    document.getElementById('statTotal').textContent = horses.length;
+    document.getElementById('statLive').innerHTML = `<em>${horses.filter(h => h.stream === 'live').length}</em>`;
+    document.getElementById('statHealthy').textContent = horses.filter(h => h.health === 'excellent').length;
+    document.getElementById('statAlerts').innerHTML = `<em>${horses.filter(h => h.health !== 'excellent').length}</em>`;
+    document.getElementById('countTxt').textContent = horses.length;
+  }
+
+  // ── Optional stable filter from URL (?stable=STB-XXX) ─────────────
+  const stableCode = new URLSearchParams(window.location.search).get('stable') || '';
+  if (stableCode) {
+    document.getElementById('backLink').style.display = 'inline-flex';
+    document.getElementById('tbSection').textContent = stableCode;
+  }
+
+  // Fetch horses from API
+  async function loadHorses() {
+    try {
+      const url = '/api/user/horses' + (stableCode ? ('?stable=' + encodeURIComponent(stableCode)) : '');
+      const res = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const horses = await res.json();
+        if (horses.length && horses[0].stable) {
+          const sectionTitle = document.querySelector('.section-title');
+          if (sectionTitle && stableCode) {
+            sectionTitle.innerHTML = `${horses[0].stable.split(',')[0]} <em>Stable</em>`;
+          }
+        }
+        renderCards(horses);
+        updateStats(horses);
+        return;
+      }
+    } catch (e) {}
+
+    renderCards([]);
+    updateStats([]);
+  }
+
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userName');
+    window.location.href = '/user/login';
+  });
+
+  loadHorses();
+</script>
+
+</body>
+</html>

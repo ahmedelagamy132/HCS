@@ -12,18 +12,18 @@ INSERT INTO veterinarians (id, full_name, license_number, specialty, email, phon
 
 -- ── Clients ──────────────────────────────────────────────────
 INSERT INTO clients (id, client_code, full_name, email, phone, region, country, city, status, stable_count, horse_count, created_at) VALUES
-  ('f0000001-0000-0000-0000-000000000001','CLT-001','Khalid Al-Rashid',    'k.rashid@equinegulf.ae',    '+971 50 123 4567','Dubai',         'UAE',          'Dubai',         'active',   3, 12, NOW() - INTERVAL '37 months'),
-  ('f0000001-0000-0000-0000-000000000002','CLT-002','Mohammed Al-Farsi',   'm.farsi@alfaris.ae',         '+971 55 234 5678','Abu Dhabi',     'UAE',          'Abu Dhabi',     'active',   2,  8, NOW() - INTERVAL '39 months'),
-  ('f0000001-0000-0000-0000-000000000003','CLT-003','Sultan Al-Nuaimi',    'sultan@nuaimi-stables.com',  '+971 50 345 6789','Sharjah',       'UAE',          'Sharjah',       'active',   1,  5, NOW() - INTERVAL '34 months'),
-  ('f0000001-0000-0000-0000-000000000004','CLT-004','Rashid Al-Maktoum',   'r.maktoum@horsecare.ae',     '+971 54 456 7890','Dubai',         'UAE',          'Dubai',         'active',   5, 28, NOW() - INTERVAL '41 months'),
-  ('f0000001-0000-0000-0000-000000000005','CLT-005','Faisal Al-Qassimi',   'faisal@qassimi.ae',          '+971 56 567 8901','Ras Al Khaimah','UAE',          'Ras Al Khaimah','active',   2, 11, NOW() - INTERVAL '32 months'),
-  ('f0000001-0000-0000-0000-000000000006','CLT-006','Hamdan Al-Mansouri',  'h.mansouri@equine.ae',       '+971 50 678 9012','Ajman',         'UAE',          'Ajman',         'inactive', 1,  4, NOW() - INTERVAL '38 months'),
-  ('f0000001-0000-0000-0000-000000000007','CLT-007','Tariq Al-Zahrani',    'tariq@zahrani-stables.sa',   '+966 55 789 0123','Riyadh',        'Saudi Arabia', 'Riyadh',        'active',   4, 22, NOW() - INTERVAL '43 months'),
-  ('f0000001-0000-0000-0000-000000000008','CLT-008','Abdullah Al-Otaibi',  'a.otaibi@horses.sa',         '+966 50 890 1234','Jeddah',        'Saudi Arabia', 'Jeddah',        'active',   2,  9, NOW() - INTERVAL '35 months'),
-  ('f0000001-0000-0000-0000-000000000009','CLT-009','Nasser Al-Thani',     'n.thani@qataristables.qa',   '+974 33 901 2345','Doha',          'Qatar',        'Doha',          'active',   3, 15, NOW() - INTERVAL '40 months'),
-  ('f0000001-0000-0000-0000-000000000010','CLT-010','Jasim Al-Buainain',   'jasim@buainain.bh',          '+973 36 012 3456','Manama',        'Bahrain',      'Manama',        'pending',  1,  6, NOW() - INTERVAL '33 months'),
-  ('f0000001-0000-0000-0000-000000000011','CLT-011','Ali Al-Hosani',       'ali.hosani@equinecare.ae',   '+971 52 111 2222','Dubai',         'UAE',          'Dubai',         'active',   2, 10, NOW() - INTERVAL '31 months'),
-  ('f0000001-0000-0000-0000-000000000012','CLT-012','Omar Al-Saffar',      'omar@saffar-stables.ae',     '+971 55 333 4444','Abu Dhabi',     'UAE',          'Abu Dhabi',     'inactive', 1,  3, NOW() - INTERVAL '36 months');
+  ('f0000001-0000-0000-0000-000000000001','CLT-001','Khalid Al-Rashid',    'k.rashid@equinegulf.ae',    '+971 50 123 4567','Dubai',         'UAE',          'Dubai',         'active',   1,  3, NOW() - INTERVAL '37 months'),
+  ('f0000001-0000-0000-0000-000000000002','CLT-002','Mohammed Al-Farsi',   'm.farsi@alfaris.ae',         '+971 55 234 5678','Abu Dhabi',     'UAE',          'Abu Dhabi',     'active',   1,  2, NOW() - INTERVAL '39 months'),
+  ('f0000001-0000-0000-0000-000000000003','CLT-003','Sultan Al-Nuaimi',    'sultan@nuaimi-stables.com',  '+971 50 345 6789','Sharjah',       'UAE',          'Sharjah',       'active',   1,  0, NOW() - INTERVAL '34 months'),
+  ('f0000001-0000-0000-0000-000000000004','CLT-004','Rashid Al-Maktoum',   'r.maktoum@horsecare.ae',     '+971 54 456 7890','Dubai',         'UAE',          'Dubai',         'active',   2,  2, NOW() - INTERVAL '41 months'),
+  ('f0000001-0000-0000-0000-000000000005','CLT-005','Faisal Al-Qassimi',   'faisal@qassimi.ae',          '+971 56 567 8901','Ras Al Khaimah','UAE',          'Ras Al Khaimah','active',   1,  1, NOW() - INTERVAL '32 months'),
+  ('f0000001-0000-0000-0000-000000000006','CLT-006','Hamdan Al-Mansouri',  'h.mansouri@equine.ae',       '+971 50 678 9012','Ajman',         'UAE',          'Ajman',         'inactive', 1,  0, NOW() - INTERVAL '38 months'),
+  ('f0000001-0000-0000-0000-000000000007','CLT-007','Tariq Al-Zahrani',    'tariq@zahrani-stables.sa',   '+966 55 789 0123','Riyadh',        'Saudi Arabia', 'Riyadh',        'active',   2,  2, NOW() - INTERVAL '43 months'),
+  ('f0000001-0000-0000-0000-000000000008','CLT-008','Abdullah Al-Otaibi',  'a.otaibi@horses.sa',         '+966 50 890 1234','Jeddah',        'Saudi Arabia', 'Jeddah',        'active',   0,  1, NOW() - INTERVAL '35 months'),
+  ('f0000001-0000-0000-0000-000000000009','CLT-009','Nasser Al-Thani',     'n.thani@qataristables.qa',   '+974 33 901 2345','Doha',          'Qatar',        'Doha',          'active',   1,  1, NOW() - INTERVAL '40 months'),
+  ('f0000001-0000-0000-0000-000000000010','CLT-010','Jasim Al-Buainain',   'jasim@buainain.bh',          '+973 36 012 3456','Manama',        'Bahrain',      'Manama',        'pending',  0,  0, NOW() - INTERVAL '33 months'),
+  ('f0000001-0000-0000-0000-000000000011','CLT-011','Ali Al-Hosani',       'ali.hosani@equinecare.ae',   '+971 52 111 2222','Dubai',         'UAE',          'Dubai',         'active',   0,  0, NOW() - INTERVAL '31 months'),
+  ('f0000001-0000-0000-0000-000000000012','CLT-012','Omar Al-Saffar',      'omar@saffar-stables.ae',     '+971 55 333 4444','Abu Dhabi',     'UAE',          'Abu Dhabi',     'inactive', 0,  0, NOW() - INTERVAL '36 months');
 
 -- ── Subscriptions ────────────────────────────────────────────
 INSERT INTO subscriptions (client_id, plan, status, start_date, end_date, monthly_rate, currency, max_stables, max_horses, ai_analyses_per_month) VALUES

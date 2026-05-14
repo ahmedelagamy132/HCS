@@ -27,8 +27,12 @@ async function initPage() {
     ];
 
     if (grid && models.length) {
-      grid.innerHTML = models.map((m, i) => `
-          <div class="model-card" style="cursor:pointer; transition: transform 0.2s, border-color 0.2s;" onmousedown="this.style.transform='scale(0.98)'; this.style.borderColor='var(--amber-lit)';" onmouseup="this.style.transform='scale(1)';" onclick="openModelTesting(this, '${m.name}', '${m.category}', '${m.version}', '${m.id}')">
+      grid.innerHTML = models.map((m, i) => {
+        const clickHandler = m.id === 'dlc-gait-pose'
+          ? "window.location.href='/admin/dlc-analysis'"
+          : "openModelTesting(this, '" + m.name + "', '" + m.category + "', '" + m.version + "', '" + m.id + "')";
+        return `
+          <div class="model-card" style="cursor:pointer; transition: transform 0.2s, border-color 0.2s;" onmousedown="this.style.transform='scale(0.98)'; this.style.borderColor='var(--amber-lit)';" onmouseup="this.style.transform='scale(1)';" onclick="${clickHandler}">
           <div class="model-icon-wrap">
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">${ICONS[i % ICONS.length]}</svg>
           </div>
@@ -52,8 +56,7 @@ async function initPage() {
             <div><div class="msi-n">${m.id}</div><div class="msi-l">Model ID</div></div>
           </div>
         </div>
-      `).join("");
-    } else if (grid) {
+      `; }).join("");
     } else if (grid) {
       grid.innerHTML = '<div style="color:var(--cream-dim)">No models found or Ollama is not running.</div>';
     }

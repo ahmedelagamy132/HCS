@@ -773,17 +773,45 @@
 
     loginBtn.classList.add('loading');
 
-    // Simulate auth (replace with real API call)
-    await new Promise(r => setTimeout(r, 1400));
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, rememberMe: document.getElementById('rememberMe').checked })
+      });
 
-    loginBtn.classList.remove('loading');
+      loginBtn.classList.remove('loading');
 
-    // Demo: show error for non-matching creds
-    errorTxt.textContent = 'Invalid credentials. Please try again.';
-    errorMsg.classList.add('show');
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('adminToken', data.access_token);
 
-    // On success, redirect:
-    // window.location.href = '/admin/dashboard.html';
+        // Resolve role: try login response first, then /api/auth/me
+        let role = data.role;
+        if (!role) {
+          try {
+            const meRes = await fetch('/api/auth/me', {
+              headers: { 'Authorization': `Bearer ${data.access_token}` }
+            });
+            if (meRes.ok) {
+              const me = await meRes.json();
+              role = me.role;
+            }
+          } catch (_) {}
+        }
+        localStorage.setItem('adminRole', role || 'view_only');
+
+        window.location.href = '/admin/dashboard.html';
+      } else {
+        const errData = await response.json();
+        errorTxt.textContent = errData.detail || 'Invalid credentials. Please try again.';
+        errorMsg.classList.add('show');
+      }
+    } catch (err) {
+      loginBtn.classList.remove('loading');
+      errorTxt.textContent = 'Server connection failed. Please try again.';
+      errorMsg.classList.add('show');
+    }
   });
 
   // Hide error on input change
