@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horse Stream — HCS Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #080603;
+      --bg2:         #100D07;
+      --bg3:         #18130C;
+      --bg4:         #1F1910;
+      --amber:       #C47820;
+      --amber-lit:   #E09830;
+      --amber-dim:   #7A4C12;
+      --cream:       #EDE0C6;
+      --cream-dim:   #9A8A70;
+      --cream-faint: #A39273;
+      --green:       #4E9468;
+      --green-dim:   #2A5A3A;
+      --danger:      #C04040;
+      --sidebar:     260px;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      display: flex;
+    }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.032'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999;
+    }
+
+    /* ─── SIDEBAR ─────────────────────────── */
+    .sidebar {
+      width: var(--sidebar);
+      height: 100vh;
+      background: var(--bg2);
+      border-right: 1px solid rgba(196,120,32,.15);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .sb-logo { padding: 2rem 1.8rem 1.5rem; border-bottom: 1px solid rgba(196,120,32,.1); }
+    .sb-wordmark { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; letter-spacing: .22em; color: var(--cream); }
+    .sb-wordmark em { color: var(--amber); font-style: normal; }
+    .sb-sub { font-size: .6rem; letter-spacing: .3em; text-transform: uppercase; color: var(--cream-faint); margin-top: .3rem; }
+    .sb-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
+    .sb-nav::-webkit-scrollbar { width: 3px; }
+    .sb-nav::-webkit-scrollbar-thumb { background: var(--amber-dim); }
+    .nav-section { font-size: .65rem; letter-spacing: .28em; text-transform: uppercase; color: var(--cream-faint); padding: .7rem 1.8rem .2rem; }
+    .nav-item { display: flex; align-items: center; gap: .85rem; padding: .72rem 1.8rem; cursor: pointer; font-size: .80rem; font-weight: 400; letter-spacing: .14em; text-transform: uppercase; color: var(--cream-dim); transition: background .18s, color .18s, border-color .18s; border-left: 2px solid transparent; position: relative; user-select: none; }
+    .nav-item:hover { color: var(--cream); background: rgba(196,120,32,.04); }
+    .nav-item.active { color: var(--amber-lit); background: rgba(196,120,32,.08); border-left-color: var(--amber); }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: .65; }
+    .nav-item.active svg { opacity: 1; }
+    .nav-badge { margin-left: auto; background: rgba(196,120,32,.18); color: var(--amber); font-size: .65rem; letter-spacing: .06em; padding: .15rem .5rem; border: 1px solid rgba(196,120,32,.25); }
+    .nav-badge.red { background: rgba(192,64,64,.15); color: var(--danger); border-color: rgba(192,64,64,.25); }
+    .sb-footer { border-top: 1px solid rgba(196,120,32,.1); padding: 1.2rem 1.8rem; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+    .sys-lbl { font-size: .54rem; letter-spacing: .12em; text-transform: uppercase; color: var(--green); }
+    .user-chip { display: flex; align-items: center; gap: .8rem; }
+    .user-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--bg4); border: 1px solid var(--amber-dim); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 500; color: var(--amber); flex-shrink: 0; }
+    .user-name { font-size: .80rem; font-weight: 400; color: var(--cream); }
+    .user-role { font-size: .52rem; letter-spacing: .1em; text-transform: uppercase; color: var(--cream-faint); margin-top: .12rem; }
+
+    /* ─── MAIN ─────────────────────────────── */
+    .main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    .topbar { height: 62px; background: var(--bg2); border-bottom: 1px solid rgba(196,120,32,.12); display: flex; align-items: center; gap: 1.2rem; padding: 0 2rem; flex-shrink: 0; }
+    .bc { display: flex; align-items: center; gap: .55rem; font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; }
+    .bc-root { color: var(--cream-faint); }
+    .bc-sep { color: var(--amber-dim); }
+    .bc-cur { color: var(--amber-lit); }
+    .tb-search { margin-left: auto; position: relative; }
+    .tb-search input { background: var(--bg3); border: 1px solid rgba(196,120,32,.18); color: var(--cream); padding: .48rem .9rem .48rem 2.1rem; font-family: 'Jost', sans-serif; font-size: .80rem; font-weight: 300; letter-spacing: .07em; width: 210px; outline: none; transition: border-color .2s; }
+    .tb-search input:focus { border-color: var(--amber); }
+    .tb-search input::placeholder { color: var(--cream-faint); }
+    .tb-search-icon { position: absolute; left: .65rem; top: 50%; transform: translateY(-50%); color: var(--cream-faint); pointer-events: none; }
+    .tb-icon { width: 34px; height: 34px; background: var(--bg3); border: 1px solid rgba(196,120,32,.15); color: var(--cream-dim); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color .18s, color .18s; position: relative; }
+    .tb-icon:hover { border-color: var(--amber); color: var(--amber-lit); }
+    .notif-dot { position: absolute; top: -3px; right: -3px; width: 13px; height: 13px; border-radius: 50%; background: var(--danger); font-size: .44rem; font-weight: 600; color: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid var(--bg2); }
+    .tb-date { font-size: .7rem; letter-spacing: .1em; color: var(--cream-dim); padding-left: 1rem; border-left: 1px solid rgba(196,120,32,.14); }
+
+    /* ─── CONTENT ──────────────────────────── */
+    .content { flex: 1; overflow-y: auto; padding: 2rem 2.2rem; }
+    .content::-webkit-scrollbar { width: 4px; }
+    .content::-webkit-scrollbar-track { background: var(--bg2); }
+    .content::-webkit-scrollbar-thumb { background: var(--amber-dim); }
+
+    /* ─── PAGE HEADER ─────────────────────── */
+    .ph { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; }
+    .ph-eyebrow { font-size: .65rem; letter-spacing: .25em; text-transform: uppercase; color: var(--amber); margin-bottom: .4rem; }
+    .ph-title { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 400; letter-spacing: .02em; color: var(--cream); line-height: 1; }
+    .ph-title em { color: var(--amber-lit); font-style: italic; }
+    .ph-actions { display: flex; gap: .8rem; }
+    .btn-outline { background: transparent; color: var(--cream); border: 1px solid rgba(196,120,32,.3); padding: .5rem 1.2rem; border-radius: 6px; cursor: pointer; transition: all .2s; font-family: 'Jost', sans-serif; font-size: .8rem; letter-spacing: .05em; text-transform: uppercase; }
+    .btn-outline:hover { background: rgba(196,120,32,.1); border-color: var(--amber); }
+
+    /* ─── STREAM LAYOUT ───────────────────── */
+    .stream-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.5rem;
+    }
+
+    .stream-main { display: flex; flex-direction: column; gap: 1.5rem; }
+
+    /* ─── VIDEO CONTAINER ─────────────────── */
+    .video-container {
+      background: var(--bg2);
+      border: 1px solid rgba(196,120,32,.2);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 360px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 20px 40px -15px rgba(0,0,0,0.5);
+    }
+    .video-overlay { position: absolute; inset: 0; background: radial-gradient(circle at center, transparent 0%, rgba(8,6,3,0.4) 100%); pointer-events: none; z-index: 2; }
+    .video-loading { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+    .spinner { width: 40px; height: 40px; border: 2px solid rgba(196,120,32,.2); border-top-color: var(--amber); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .video-text { font-size: .8rem; letter-spacing: .15em; text-transform: uppercase; color: var(--amber-dim); animation: pulseText 2s ease-in-out infinite; }
+    @keyframes pulseText { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
+
+    #stream-canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: contain;
+      display: none;
+      z-index: 1;
+    }
+
+    /* ─── BEHAVIOR LOG ─────────────────────── */
+    .behavior-log {
+      background: var(--bg2);
+      border: 1px solid rgba(196,120,32,.15);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .log-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .9rem 1.2rem;
+      border-bottom: 1px solid rgba(196,120,32,.12);
+      background: var(--bg3);
+    }
+    .log-title { font-size: .65rem; letter-spacing: .25em; text-transform: uppercase; color: var(--amber); }
+    .log-meta { font-size: .65rem; color: var(--cream-faint); letter-spacing: .05em; }
+    .btn-clear { background: transparent; border: 1px solid rgba(196,120,32,.2); color: var(--cream-dim); font-family: 'Jost', sans-serif; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; padding: .25rem .7rem; border-radius: 4px; cursor: pointer; transition: all .18s; }
+    .btn-clear:hover { border-color: var(--amber); color: var(--amber); }
+
+    .log-table-wrap { max-height: 640px; overflow-y: auto; }
+    .log-table-wrap::-webkit-scrollbar { width: 3px; }
+    .log-table-wrap::-webkit-scrollbar-thumb { background: var(--amber-dim); }
+
+    .log-table { width: 100%; border-collapse: collapse; }
+    .log-table thead tr { background: rgba(196,120,32,.05); }
+    .log-table th { font-size: .6rem; letter-spacing: .2em; text-transform: uppercase; color: var(--cream-faint); padding: .6rem 1rem; text-align: left; border-bottom: 1px solid rgba(196,120,32,.1); font-weight: 400; }
+    .log-table td { font-size: .78rem; color: var(--cream); padding: .7rem 1rem; border-bottom: 1px solid rgba(196,120,32,.06); vertical-align: top; line-height: 1.5; }
+    .log-table tbody tr:hover { background: rgba(196,120,32,.03); }
+    .log-table td.ts { color: var(--cream-faint); font-size: .72rem; white-space: nowrap; }
+    .log-table td.frm { color: var(--cream-dim); font-size: .72rem; white-space: nowrap; }
+    .log-table td.snap { padding: .5rem .6rem; }
+    .log-table td.snap img {
+      width: 140px; height: 80px; object-fit: cover;
+      border-radius: 4px; border: 1px solid rgba(196,120,32,.15);
+      display: block; cursor: zoom-in;
+      transition: transform .18s ease, border-color .18s ease;
+    }
+    .log-table td.snap img:hover { transform: scale(1.04); border-color: var(--amber); }
+    .log-table td.snap .snap-empty {
+      width: 140px; height: 80px;
+      border-radius: 4px; border: 1px dashed rgba(196,120,32,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .6rem; color: var(--cream-faint); letter-spacing: .1em;
+    }
+    .log-table td.behavior { max-width: 0; }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
+      padding: .2rem .55rem; border-radius: 20px; white-space: nowrap;
+    }
+    .status-pill.pending { background: rgba(196,120,32,.1); color: var(--amber); border: 1px solid rgba(196,120,32,.2); }
+    .status-pill.done    { background: rgba(78,148,104,.1); color: var(--green); border: 1px solid rgba(78,148,104,.2); }
+    .status-pill.error   { background: rgba(192,64,64,.1); color: var(--danger); border: 1px solid rgba(192,64,64,.2); }
+    .status-dot-s { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .status-pill.pending .status-dot-s { animation: blink 1.2s infinite; }
+
+    .log-empty { padding: 2rem; text-align: center; color: var(--cream-faint); font-size: .78rem; letter-spacing: .08em; }
+
+    /* ─── SIDE PANEL ──────────────────────── */
+    .stream-side {
+      background: var(--bg2);
+      border: 1px solid rgba(196,120,32,.15);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      align-self: start;
+    }
+
+    /* Connection */
+    .conn-group { display: flex; flex-direction: column; gap: .5rem; }
+    .conn-label { font-size: .62rem; letter-spacing: .15em; text-transform: uppercase; color: var(--cream-faint); }
+    .conn-input { background: var(--bg3); border: 1px solid rgba(196,120,32,.18); color: var(--cream); padding: .65rem; border-radius: 6px; font-family: 'Jost', sans-serif; outline: none; font-size: .78rem; transition: border-color .2s, box-shadow .2s; width: 100%; }
+    .conn-input:focus { border-color: var(--amber); box-shadow: 0 0 0 2px rgba(196,120,32,.1); }
+    .conn-btn { background: var(--amber); color: var(--bg); border: none; padding: .65rem; border-radius: 6px; font-family: 'Jost', sans-serif; font-size: .78rem; font-weight: 500; cursor: pointer; text-transform: uppercase; letter-spacing: .1em; transition: background .2s, transform .1s; width: 100%; }
+    .conn-btn:hover { background: var(--amber-lit); }
+    .conn-btn:active { transform: scale(0.98); }
+    .conn-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* Status indicator */
+    .status-indicator { display: inline-flex; align-items: center; gap: .4rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; background: rgba(78,148,104,.1); color: var(--green); padding: .2rem .6rem; border-radius: 4px; border: 1px solid rgba(78,148,104,.2); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 2s infinite; }
+    .disconnected .status-indicator { background: rgba(192,64,64,.1); color: var(--danger); border-color: rgba(192,64,64,.2); }
+    .disconnected .status-dot { background: var(--danger); animation: none; }
+
+    /* Horse info */
+    .horse-info-card { border-top: 1px solid rgba(196,120,32,.12); padding-top: 1.2rem; }
+    .info-row { display: flex; justify-content: space-between; margin-bottom: .7rem; border-bottom: 1px dotted rgba(196,120,32,.08); padding-bottom: .35rem; }
+    .info-key { font-size: .68rem; color: var(--cream-faint); text-transform: uppercase; letter-spacing: .1em; }
+    .info-val { font-size: .78rem; color: var(--cream); font-weight: 400; }
+
+    /* VLM section divider */
+    .vlm-divider { display: flex; align-items: center; gap: .7rem; margin: .2rem 0; }
+    .vlm-divider span { font-size: .6rem; letter-spacing: .25em; text-transform: uppercase; color: var(--amber); white-space: nowrap; }
+    .vlm-divider::after { content: ''; flex: 1; height: 1px; background: rgba(196,120,32,.15); }
+
+    /* VLM controls */
+    .ctrl-row { display: flex; flex-direction: column; gap: .35rem; }
+    .ctrl-label { font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--cream-faint); }
+    .ctrl-select, .ctrl-number, .ctrl-textarea {
+      background: var(--bg3); border: 1px solid rgba(196,120,32,.18); color: var(--cream);
+      font-family: 'Jost', sans-serif; font-size: .78rem; font-weight: 300; outline: none;
+      transition: border-color .2s; border-radius: 4px;
+    }
+    .ctrl-select { padding: .5rem .6rem; width: 100%; cursor: pointer; }
+    .ctrl-number { padding: .5rem .6rem; width: 100%; }
+    .ctrl-textarea { padding: .55rem .65rem; width: 100%; resize: vertical; min-height: 72px; line-height: 1.5; }
+    .ctrl-select:focus, .ctrl-number:focus, .ctrl-textarea:focus { border-color: var(--amber); }
+
+    /* Quality slider */
+    .slider-row { display: flex; align-items: center; gap: .7rem; }
+    .ctrl-range { flex: 1; accent-color: var(--amber); cursor: pointer; }
+    .slider-val { font-size: .72rem; color: var(--amber); min-width: 32px; text-align: right; letter-spacing: .04em; }
+
+    /* Analysis toggle button */
+    .analysis-btn { background: transparent; color: var(--amber); border: 1px solid rgba(196,120,32,.4); padding: .65rem; border-radius: 6px; font-family: 'Jost', sans-serif; font-size: .78rem; font-weight: 400; cursor: pointer; text-transform: uppercase; letter-spacing: .12em; transition: all .2s; width: 100%; }
+    .analysis-btn:hover:not(:disabled) { background: rgba(196,120,32,.1); border-color: var(--amber); }
+    .analysis-btn.active { background: rgba(192,64,64,.12); color: var(--danger); border-color: rgba(192,64,64,.35); }
+    .analysis-btn.active:hover { background: rgba(192,64,64,.2); }
+    .analysis-btn:disabled { opacity: .35; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+  <div id="sidebar-container"></div>
+
+  <main class="main">
+    <div id="header-container"></div>
+
+    <div class="content">
+
+      <div class="ph">
+        <div>
+          <div class="ph-eyebrow" id="horse-id-display">HR-0000</div>
+          <h1 class="ph-title" id="horse-name-display">Loading <em>Horse...</em></h1>
+        </div>
+        <div class="ph-actions">
+          <button class="btn-outline" onclick="window.history.back()">← Back</button>
+        </div>
+      </div>
+
+      <div class="stream-layout disconnected" id="stream-sys">
+
+        <!-- Left: video + behavior log -->
+        <div class="stream-main">
+
+          <!-- Video -->
+          <div class="video-container" id="video-player">
+            <div class="video-overlay"></div>
+            <canvas id="stream-canvas"></canvas>
+            <div class="video-loading" id="video-loading">
+              <div class="spinner" id="v-spinner" style="display:none;"></div>
+              <div class="video-text" id="v-text">Awaiting Source</div>
+            </div>
+          </div>
+
+          <!-- Behavior log table -->
+          <div class="behavior-log">
+            <div class="log-header">
+              <span class="log-title">Behavior Log</span>
+              <div style="display:flex;align-items:center;gap:.8rem;">
+                <span class="log-meta" id="log-count">0 entries</span>
+                <button class="btn-clear" id="btn-clear-log">Clear</button>
+              </div>
+            </div>
+            <div class="log-table-wrap" id="log-table-wrap">
+              <div class="log-empty" id="log-empty">No analysis data yet. Connect to stream and start analysis.</div>
+              <table class="log-table" id="log-table" style="display:none;">
+                <thead>
+                  <tr>
+                    <th style="width:90px;">Time</th>
+                    <th style="width:80px;">Frame</th>
+                    <th style="width:160px;">Snapshot</th>
+                    <th>Behavior</th>
+                    <th style="width:90px;">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="log-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right: controls panel -->
+        <div class="stream-side">
+
+          <!-- RTSP connection -->
+          <div class="conn-group">
+            <label class="conn-label">RTSP Source Link</label>
+            <input type="text" class="conn-input" id="rtsp-url"
+              placeholder="rtsp://camera-ip:554/stream"
+              value="rtsp://admin:1510Darwish@100.95.89.86:9554/Streaming/Channels/101">
+          </div>
+          <button class="conn-btn" id="connect-btn">Connect Stream</button>
+
+          <div>
+            <div class="status-indicator">
+              <div class="status-dot"></div>
+              <span id="conn-status-lbl">Disconnected</span>
+            </div>
+          </div>
+
+          <!-- Horse info -->
+          <div class="horse-info-card">
+            <div class="info-row"><span class="info-key">Breed</span><span class="info-val" id="inf-breed">-</span></div>
+            <div class="info-row"><span class="info-key">Age</span><span class="info-val" id="inf-age">-</span></div>
+            <div class="info-row"><span class="info-key">Stable</span><span class="info-val" id="inf-stable">-</span></div>
+            <div class="info-row"><span class="info-key">Owner</span><span class="info-val" id="inf-owner">-</span></div>
+            <div class="info-row" style="border:none;margin-bottom:0;"><span class="info-key">Health</span><span class="info-val" id="inf-health" style="text-transform:capitalize;">-</span></div>
+          </div>
+
+          <!-- VLM Analysis section -->
+          <div class="vlm-divider"><span>VLM Analysis</span></div>
+
+          <div class="ctrl-row">
+            <label class="ctrl-label">Model</label>
+            <select class="ctrl-select" id="vlm-model">
+              <option value="">Loading models…</option>
+            </select>
+          </div>
+
+          <div class="ctrl-row">
+            <label class="ctrl-label">Analysis Interval</label>
+            <div style="display:flex;align-items:center;gap:.5rem;">
+              <input type="number" class="ctrl-number" id="vlm-interval"
+                value="5" min="1" max="120" style="flex:1;">
+              <span style="font-size:.72rem;color:var(--cream-faint);white-space:nowrap;">seconds</span>
+            </div>
+          </div>
+
+          <div class="ctrl-row">
+            <label class="ctrl-label">JPEG Quality — <span id="quality-val">75</span>%</label>
+            <div class="slider-row">
+              <input type="range" class="ctrl-range" id="vlm-quality"
+                value="75" min="30" max="100">
+            </div>
+          </div>
+
+          <div class="ctrl-row">
+            <label class="ctrl-label">Resolution</label>
+            <select class="ctrl-select" id="vlm-resolution">
+              <option value="320x240">320 × 240 — Fastest</option>
+              <option value="640x480" selected>640 × 480 — Balanced</option>
+              <option value="1280x720">1280 × 720 — Detailed</option>
+            </select>
+          </div>
+
+          <div class="ctrl-row">
+            <label class="ctrl-label">Prompt</label>
+            <textarea class="ctrl-textarea" id="vlm-prompt">What is the horse doing? Describe the horse's behavior in one concise sentence. Focus on posture, movement, and activity.</textarea>
+          </div>
+
+          <button class="analysis-btn" id="analysis-btn" disabled>Start Analysis</button>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="/admin/js/layout.js"></script>
+  <script src="/admin/js/horse-stream.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+INFO:     Started server process [5160]
+INFO:     Waiting for application startup.
+INFO:app.database:Successfully connected to the database
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:ai:Received video: mp_.mp4 (7254942 bytes), model=qwen3-vl:8b, interval=1.0, max_frames=25, resolution=640x480, quality=80, start=0.0, end=0.0, mode=aggregate
+INFO:ai:Extracted 8 frames from video (info: {'fps': 24.0, 'total_frames': 192, 'duration': 8.0, 'extracted_count': 8, 'resolution': '640x480', 'quality': 80, 'interval': 1.0})
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 500 Internal Server Error"
+INFO:ai:Received video: mp_.mp4 (7254942 bytes), model=qwen3-vl:8b, interval=1.0, max_frames=25, resolution=640x480, quality=80, start=0.0, end=0.0, mode=aggregate
+INFO:ai:Extracted 8 frames from video (info: {'fps': 24.0, 'total_frames': 192, 'duration': 8.0, 'extracted_count': 8, 'resolution': '640x480', 'quality': 80, 'interval': 1.0})
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 500 Internal Server Error"

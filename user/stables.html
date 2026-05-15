@@ -593,11 +593,16 @@
     const alerts  = stables.reduce((a, s) => a + (s.attention_count || 0), 0);
     const healthy = stables.filter(s => (s.attention_count || 0) === 0).length;
 
-    document.getElementById('statStables').textContent  = total || '0';
-    document.getElementById('statHorses').textContent   = horses;
-    document.getElementById('statHealthy').textContent  = healthy;
-    document.getElementById('statWatch').innerHTML      = `<em>${alerts}</em>`;
-    document.getElementById('countTxt').textContent     = total;
+    const elStables = document.getElementById('statStables');
+    const elHorses  = document.getElementById('statHorses');
+    const elHealthy = document.getElementById('statHealthy');
+    const elWatch   = document.getElementById('statWatch');
+    const elCount   = document.getElementById('countTxt');
+    if (elStables) elStables.textContent = total || '0';
+    if (elHorses)  elHorses.textContent  = horses;
+    if (elHealthy) elHealthy.textContent = healthy;
+    if (elWatch)   elWatch.innerHTML     = `<em>${alerts}</em>`;
+    if (elCount)   elCount.textContent   = total;
 
     if (!stables.length) {
       grid.style.display = 'grid';

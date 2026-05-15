@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HCS Database Schema</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 40px 24px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: #f8fafc;
+  }
+
+  header p {
+    margin-top: 8px;
+    color: #64748b;
+    font-size: 0.95rem;
+  }
+
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 20px;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #6366f1;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+  }
+
+  .section-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #475569;
+    margin-bottom: 16px;
+    padding-left: 4px;
+  }
+
+  .group {
+    margin-bottom: 48px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    background: #1e2130;
+    border-radius: 12px;
+    border: 1px solid #2d3148;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid #2d3148;
+  }
+
+  .card-header .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .card-header h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    color: #f1f5f9;
+    flex: 1;
+  }
+
+  .col-count {
+    font-size: 0.72rem;
+    color: #475569;
+    background: #2d3148;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  .card-body {
+    padding: 0;
+  }
+
+  .col-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 18px;
+    border-bottom: 1px solid #1a1d2e;
+    font-size: 0.8rem;
+    transition: background 0.15s;
+  }
+
+  .col-row:last-child { border-bottom: none; }
+  .col-row:hover { background: #252840; }
+
+  .col-name {
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    color: #cbd5e1;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .col-name.pk { color: #fbbf24; }
+  .col-name.fk { color: #818cf8; }
+
+  .col-type {
+    font-size: 0.7rem;
+    color: #475569;
+    font-family: monospace;
+    white-space: nowrap;
+  }
+
+  .badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+
+  .badge-pk { background: #78350f; color: #fbbf24; }
+  .badge-fk { background: #1e1b4b; color: #818cf8; }
+  .badge-nn { background: #1e3a2a; color: #4ade80; font-size: 0.55rem; }
+
+  /* Group accent colors */
+  .auth    .dot { background: #f59e0b; }
+  .auth    .card-header { border-top: 3px solid #f59e0b; }
+
+  .core    .dot { background: #10b981; }
+  .core    .card-header { border-top: 3px solid #10b981; }
+
+  .ai      .dot { background: #6366f1; }
+  .ai      .card-header { border-top: 3px solid #6366f1; }
+
+  .system  .dot { background: #06b6d4; }
+  .system  .card-header { border-top: 3px solid #06b6d4; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .fk-list {
+    padding: 12px 18px;
+    border-top: 1px solid #2d3148;
+    background: #171929;
+  }
+
+  .fk-title {
+    font-size: 0.65rem;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  .fk-item {
+    font-size: 0.72rem;
+    font-family: monospace;
+    color: #6366f1;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .fk-item span { color: #475569; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>HCS — Equine Intelligence System</h1>
+  <p>Database Schema · PostgreSQL 18</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-value">16</div><div class="stat-label">Tables</div></div>
+    <div class="stat"><div class="stat-value">227</div><div class="stat-label">Columns</div></div>
+    <div class="stat"><div class="stat-value">4</div><div class="stat-label">Domains</div></div>
+    <div class="stat"><div class="stat-value">14</div><div class="stat-label">FK Relations</div></div>
+  </div>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Auth</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div> Core</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div> AI</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#06b6d4"></div> System</div>
+  <div class="legend-item"><span class="badge badge-pk">PK</span> Primary Key</div>
+  <div class="legend-item"><span class="badge badge-fk">FK</span> Foreign Key</div>
+  <div class="legend-item"><span class="badge badge-nn">NN</span> Not Null</div>
+</div>
+
+<!-- AUTH -->
+<div class="group auth">
+  <div class="section-title">Auth & Sessions</div>
+  <div class="grid">
+
+    <div class="card auth">
+      <div class="card-header"><div class="dot"></div><h3>admin_users</h3><span class="col-count">14 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name">admin_code</span><span class="col-type">varchar(20)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">full_name</span><span class="col-type">varchar(255)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">email</span><span class="col-type">citext</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">password_hash</span><span class="col-type">varchar(255)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">role</span><span class="col-type">admin_role</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">is_active</span><span class="col-type">boolean</span></div>
+        <div class="col-row"><span class="col-name">last_login_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">login_count</span><span class="col-type">integer</span></div>
+        <div class="col-row"><span class="col-name">failed_logins</span><span class="col-type">integer</span></div>
+        <div class="col-row"><span class="col-name">locked_until</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">avatar_url</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">created_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">updated_at</span><span class="col-type">timestamptz</span></div>
+      </div>
+    </div>
+
+    <div class="card auth">
+      <div class="card-header"><div class="dot"></div><h3>admin_sessions</h3><span class="col-count">8 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name fk">admin_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name">token_hash</span><span class="col-type">varchar(255)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">ip_address</span><span class="col-type">inet</span></div>
+        <div class="col-row"><span class="col-name">user_agent</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">is_valid</span><span class="col-type">boolean</span></div>
+        <div class="col-row"><span class="col-name">expires_at</span><span class="col-type">timestamptz</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">revoked_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">created_at</span><span class="col-type">timestamptz</span></div>
+      </div>
+      <div class="fk-list">
+        <div class="fk-title">Foreign Keys</div>
+        <div class="fk-item">admin_id <span>→</span> admin_users.id</div>
+      </div>
+    </div>
+
+    <div class="card auth">
+      <div class="card-header"><div class="dot"></div><h3>admin_permissions</h3><span class="col-count">9 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name fk">admin_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name">resource</span><span class="col-type">varchar(50)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">can_read</span><span class="col-type">boolean</span></div>
+        <div class="col-row"><span class="col-name">can_create</span><span class="col-type">boolean</span></div>
+        <div class="col-row"><span class="col-name">can_update</span><span class="col-type">boolean</span></div>
+        <div class="col-row"><span class="col-name">can_delete</span><span class="col-type">boolean</span></div>
+        <div class="col-row"><span class="col-name">can_export</span><span class="col-type">boolean</span></div>
+        <div class="col-row"><span class="col-name fk">granted_by</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name">granted_at</span><span class="col-type">timestamptz</span></div>
+      </div>
+      <div class="fk-list">
+        <div class="fk-title">Foreign Keys</div>
+        <div class="fk-item">admin_id <span>→</span> admin_users.id</div>
+        <div class="fk-item">granted_by <span>→</span> admin_users.id</div>
+      </div>
+    </div>
+
+    <div class="card auth">
+      <div class="card-header"><div class="dot"></div><h3>client_sessions</h3><span class="col-count">8 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name fk">client_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name">token_hash</span><span class="col-type">varchar(255)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">ip_address</span><span class="col-type">inet</span></div>
+        <div class="col-row"><span class="col-name">user_agent</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">is_valid</span><span class="col-type">boolean</span></div>
+        <div class="col-row"><span class="col-name">expires_at</span><span class="col-type">timestamptz</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">revoked_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">created_at</span><span class="col-type">timestamptz</span></div>
+      </div>
+      <div class="fk-list">
+        <div class="fk-title">Foreign Keys</div>
+        <div class="fk-item">client_id <span>→</span> clients.id</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CORE -->
+<div class="group core">
+  <div class="section-title">Core Business</div>
+  <div class="grid">
+
+    <div class="card core">
+      <div class="card-header"><div class="dot"></div><h3>clients</h3><span class="col-count">16 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name">client_code</span><span class="col-type">varchar(20)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">full_name</span><span class="col-type">varchar(255)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">email</span><span class="col-type">citext</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">phone</span><span class="col-type">varchar(50)</span></div>
+        <div class="col-row"><span class="col-name">country</span><span class="col-type">varchar(100)</span></div>
+        <div class="col-row"><span class="col-name">city</span><span class="col-type">varchar(100)</span></div>
+        <div class="col-row"><span class="col-name">region</span><span class="col-type">varchar(100)</span></div>
+        <div class="col-row"><span class="col-name">status</span><span class="col-type">client_status</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">stable_count</span><span class="col-type">integer</span></div>
+        <div class="col-row"><span class="col-name">horse_count</span><span class="col-type">integer</span></div>
+        <div class="col-row"><span class="col-name">password_hash</span><span class="col-type">varchar(255)</span></div>
+        <div class="col-row"><span class="col-name">notes</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">photo_url</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">created_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">updated_at</span><span class="col-type">timestamptz</span></div>
+      </div>
+    </div>
+
+    <div class="card core">
+      <div class="card-header"><div class="dot"></div><h3>stables</h3><span class="col-count">18 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name">stable_code</span><span class="col-type">varchar(20)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar(255)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">city</span><span class="col-type">varchar(100)</span></div>
+        <div class="col-row"><span class="col-name">country</span><span class="col-type">varchar(100)</span></div>
+        <div class="col-row"><span class="col-name">capacity</span><span class="col-type">integer</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">occupied</span><span class="col-type">integer</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">status</span><span class="col-type">stable_status</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name fk">owner_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name fk">primary_vet_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name">latitude</span><span class="col-type">decimal(9,6)</span></div>
+        <div class="col-row"><span class="col-name">longitude</span><span class="col-type">decimal(9,6)</span></div>
+        <div class="col-row"><span class="col-name">facilities</span><span class="col-type">jsonb</span></div>
+        <div class="col-row"><span class="col-name">established_date</span><span class="col-type">date</span></div>
+        <div class="col-row"><span class="col-name">notes</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">created_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">updated_at</span><span class="col-type">timestamptz</span></div>
+      </div>
+      <div class="fk-list">
+        <div class="fk-title">Foreign Keys</div>
+        <div class="fk-item">owner_id <span>→</span> clients.id</div>
+        <div class="fk-item">primary_vet_id <span>→</span> veterinarians.id</div>
+      </div>
+    </div>
+
+    <div class="card core">
+      <div class="card-header"><div class="dot"></div><h3>horses</h3><span class="col-count">21 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name">horse_code</span><span class="col-type">varchar(20)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar(255)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">breed</span><span class="col-type">varchar(100)</span></div>
+        <div class="col-row"><span class="col-name">gender</span><span class="col-type">horse_gender</span></div>
+        <div class="col-row"><span class="col-name">date_of_birth</span><span class="col-type">date</span></div>
+        <div class="col-row"><span class="col-name">color</span><span class="col-type">varchar(100)</span></div>
+        <div class="col-row"><span class="col-name">weight_kg</span><span class="col-type">decimal(6,2)</span></div>
+        <div class="col-row"><span class="col-name">height_cm</span><span class="col-type">decimal(5,2)</span></div>
+        <div class="col-row"><span class="col-name">passport_number</span><span class="col-type">varchar(100)</span></div>
+        <div class="col-row"><span class="col-name">chip_number</span><span class="col-type">varchar(100)</span></div>
+        <div class="col-row"><span class="col-name fk">owner_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name fk">stable_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name fk">primary_vet_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name">health_status</span><span class="col-type">horse_health_status</span></div>
+        <div class="col-row"><span class="col-name">is_active</span><span class="col-type">boolean</span></div>
+        <div class="col-row"><span class="col-name">is_racing</span><span class="col-type">boolean</span></div>
+        <div class="col-row"><span class="col-name">photo_url</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">notes</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">created_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">updated_at</span><span class="col-type">timestamptz</span></div>
+      </div>
+      <div class="fk-list">
+        <div class="fk-title">Foreign Keys</div>
+        <div class="fk-item">owner_id <span>→</span> clients.id</div>
+        <div class="fk-item">stable_id <span>→</span> stables.id</div>
+        <div class="fk-item">primary_vet_id <span>→</span> veterinarians.id</div>
+      </div>
+    </div>
+
+    <div class="card core">
+      <div class="card-header"><div class="dot"></div><h3>veterinarians</h3><span class="col-count">13 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name">full_name</span><span class="col-type">varchar(255)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">license_number</span><span class="col-type">varchar(100)</span></div>
+        <div class="col-row"><span class="col-name">specialty</span><span class="col-type">varchar(100)</span></div>
+        <div class="col-row"><span class="col-name">clinic_name</span><span class="col-type">varchar(255)</span></div>
+        <div class="col-row"><span class="col-name">email</span><span class="col-type">citext</span></div>
+        <div class="col-row"><span class="col-name">phone</span><span class="col-type">varchar(50)</span></div>
+        <div class="col-row"><span class="col-name">city</span><span class="col-type">varchar(100)</span></div>
+        <div class="col-row"><span class="col-name">country</span><span class="col-type">varchar(100)</span></div>
+        <div class="col-row"><span class="col-name">is_active</span><span class="col-type">boolean</span></div>
+        <div class="col-row"><span class="col-name">notes</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">created_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">updated_at</span><span class="col-type">timestamptz</span></div>
+      </div>
+    </div>
+
+    <div class="card core">
+      <div class="card-header"><div class="dot"></div><h3>stable_assignments</h3><span class="col-count">7 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name fk">horse_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name fk">stable_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name">assigned_at</span><span class="col-type">timestamptz</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">removed_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">reason</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name fk">assigned_by</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+      </div>
+      <div class="fk-list">
+        <div class="fk-title">Foreign Keys</div>
+        <div class="fk-item">horse_id <span>→</span> horses.id</div>
+        <div class="fk-item">stable_id <span>→</span> stables.id</div>
+        <div class="fk-item">assigned_by <span>→</span> admin_users.id</div>
+      </div>
+    </div>
+
+    <div class="card core">
+      <div class="card-header"><div class="dot"></div><h3>subscriptions</h3><span class="col-count">15 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name fk">client_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name">plan</span><span class="col-type">subscription_plan</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">status</span><span class="col-type">subscription_status</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">start_date</span><span class="col-type">date</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">end_date</span><span class="col-type">date</span></div>
+        <div class="col-row"><span class="col-name">monthly_rate</span><span class="col-type">decimal(10,2)</span></div>
+        <div class="col-row"><span class="col-name">currency</span><span class="col-type">char(3)</span></div>
+        <div class="col-row"><span class="col-name">max_stables</span><span class="col-type">integer</span></div>
+        <div class="col-row"><span class="col-name">max_horses</span><span class="col-type">integer</span></div>
+        <div class="col-row"><span class="col-name">ai_analyses_per_month</span><span class="col-type">integer</span></div>
+        <div class="col-row"><span class="col-name">next_billing_date</span><span class="col-type">date</span></div>
+        <div class="col-row"><span class="col-name">last_payment_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">last_payment_amount</span><span class="col-type">decimal(10,2)</span></div>
+        <div class="col-row"><span class="col-name">created_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">updated_at</span><span class="col-type">timestamptz</span></div>
+      </div>
+      <div class="fk-list">
+        <div class="fk-title">Foreign Keys</div>
+        <div class="fk-item">client_id <span>→</span> clients.id</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- AI -->
+<div class="group ai">
+  <div class="section-title">AI & Machine Learning</div>
+  <div class="grid">
+
+    <div class="card ai">
+      <div class="card-header"><div class="dot"></div><h3>ai_models</h3><span class="col-count">22 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name">name</span><span class="col-type">varchar(100)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">slug</span><span class="col-type">varchar(100)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">description</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">model_type</span><span class="col-type">analysis_type</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">version</span><span class="col-type">varchar(20)</span></div>
+        <div class="col-row"><span class="col-name">status</span><span class="col-type">ai_model_status</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">accuracy_score</span><span class="col-type">decimal(5,2)</span></div>
+        <div class="col-row"><span class="col-name">precision_score</span><span class="col-type">decimal(5,2)</span></div>
+        <div class="col-row"><span class="col-name">recall_score</span><span class="col-type">decimal(5,2)</span></div>
+        <div class="col-row"><span class="col-name">f1_score</span><span class="col-type">decimal(5,2)</span></div>
+        <div class="col-row"><span class="col-name">avg_response_ms</span><span class="col-type">integer</span></div>
+        <div class="col-row"><span class="col-name">total_requests</span><span class="col-type">bigint</span></div>
+        <div class="col-row"><span class="col-name">requests_today</span><span class="col-type">integer</span></div>
+        <div class="col-row"><span class="col-name">last_trained_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">deployed_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">training_dataset_size</span><span class="col-type">integer</span></div>
+        <div class="col-row"><span class="col-name">model_config</span><span class="col-type">jsonb</span></div>
+        <div class="col-row"><span class="col-name">input_schema</span><span class="col-type">jsonb</span></div>
+        <div class="col-row"><span class="col-name">output_schema</span><span class="col-type">jsonb</span></div>
+        <div class="col-row"><span class="col-name">created_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">updated_at</span><span class="col-type">timestamptz</span></div>
+      </div>
+    </div>
+
+    <div class="card ai">
+      <div class="card-header"><div class="dot"></div><h3>ai_analyses</h3><span class="col-count">14 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name fk">model_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name fk">horse_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name fk">stable_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name">analysis_type</span><span class="col-type">analysis_type</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">status</span><span class="col-type">analysis_status</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">input_data</span><span class="col-type">jsonb</span></div>
+        <div class="col-row"><span class="col-name">result</span><span class="col-type">jsonb</span></div>
+        <div class="col-row"><span class="col-name">confidence_score</span><span class="col-type">decimal(5,2)</span></div>
+        <div class="col-row"><span class="col-name">processing_ms</span><span class="col-type">integer</span></div>
+        <div class="col-row"><span class="col-name">triggered_by</span><span class="col-type">varchar(50)</span></div>
+        <div class="col-row"><span class="col-name fk">triggered_by_admin</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name">error_message</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">created_at</span><span class="col-type">timestamptz</span></div>
+      </div>
+      <div class="fk-list">
+        <div class="fk-title">Foreign Keys</div>
+        <div class="fk-item">model_id <span>→</span> ai_models.id</div>
+        <div class="fk-item">horse_id <span>→</span> horses.id</div>
+        <div class="fk-item">stable_id <span>→</span> stables.id</div>
+        <div class="fk-item">triggered_by_admin <span>→</span> admin_users.id</div>
+      </div>
+    </div>
+
+    <div class="card ai">
+      <div class="card-header"><div class="dot"></div><h3>ai_training_jobs</h3><span class="col-count">17 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name fk">model_id</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name fk">triggered_by</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name">status</span><span class="col-type">varchar(20)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">reason</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">dataset_size</span><span class="col-type">integer</span></div>
+        <div class="col-row"><span class="col-name">train_split_pct</span><span class="col-type">decimal(4,1)</span></div>
+        <div class="col-row"><span class="col-name">val_split_pct</span><span class="col-type">decimal(4,1)</span></div>
+        <div class="col-row"><span class="col-name">test_split_pct</span><span class="col-type">decimal(4,1)</span></div>
+        <div class="col-row"><span class="col-name">config</span><span class="col-type">jsonb</span></div>
+        <div class="col-row"><span class="col-name">final_accuracy</span><span class="col-type">decimal(5,2)</span></div>
+        <div class="col-row"><span class="col-name">final_val_loss</span><span class="col-type">decimal(8,6)</span></div>
+        <div class="col-row"><span class="col-name">total_epochs</span><span class="col-type">integer</span></div>
+        <div class="col-row"><span class="col-name">best_epoch</span><span class="col-type">integer</span></div>
+        <div class="col-row"><span class="col-name">queued_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">started_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">completed_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">error_message</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">notes</span><span class="col-type">text</span></div>
+      </div>
+      <div class="fk-list">
+        <div class="fk-title">Foreign Keys</div>
+        <div class="fk-item">model_id <span>→</span> ai_models.id</div>
+        <div class="fk-item">triggered_by <span>→</span> admin_users.id</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SYSTEM -->
+<div class="group system">
+  <div class="section-title">System</div>
+  <div class="grid">
+
+    <div class="card system">
+      <div class="card-header"><div class="dot"></div><h3>activity_logs</h3><span class="col-count">13 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name">actor_type</span><span class="col-type">actor_type</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">actor_id</span><span class="col-type">uuid</span></div>
+        <div class="col-row"><span class="col-name">actor_label</span><span class="col-type">varchar(255)</span></div>
+        <div class="col-row"><span class="col-name">action</span><span class="col-type">varchar(100)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">entity_type</span><span class="col-type">varchar(50)</span></div>
+        <div class="col-row"><span class="col-name">entity_id</span><span class="col-type">uuid</span></div>
+        <div class="col-row"><span class="col-name">entity_label</span><span class="col-type">varchar(255)</span></div>
+        <div class="col-row"><span class="col-name">description</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">ip_address</span><span class="col-type">inet</span></div>
+        <div class="col-row"><span class="col-name">user_agent</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">metadata</span><span class="col-type">jsonb</span></div>
+        <div class="col-row"><span class="col-name">created_at</span><span class="col-type">timestamptz</span></div>
+      </div>
+    </div>
+
+    <div class="card system">
+      <div class="card-header"><div class="dot"></div><h3>notifications</h3><span class="col-count">14 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">id</span><span class="col-type">uuid</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name">recipient_type</span><span class="col-type">varchar(20)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">recipient_id</span><span class="col-type">uuid</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">type</span><span class="col-type">notification_type</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">title</span><span class="col-type">varchar(255)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">message</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">is_read</span><span class="col-type">boolean</span></div>
+        <div class="col-row"><span class="col-name">read_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">link</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">related_entity_type</span><span class="col-type">varchar(50)</span></div>
+        <div class="col-row"><span class="col-name">related_entity_id</span><span class="col-type">uuid</span></div>
+        <div class="col-row"><span class="col-name">metadata</span><span class="col-type">jsonb</span></div>
+        <div class="col-row"><span class="col-name">expires_at</span><span class="col-type">timestamptz</span></div>
+        <div class="col-row"><span class="col-name">created_at</span><span class="col-type">timestamptz</span></div>
+      </div>
+    </div>
+
+    <div class="card system">
+      <div class="card-header"><div class="dot"></div><h3>system_settings</h3><span class="col-count">7 cols</span></div>
+      <div class="card-body">
+        <div class="col-row"><span class="col-name pk">key</span><span class="col-type">varchar(100)</span><span class="badge badge-pk">PK</span></div>
+        <div class="col-row"><span class="col-name">value</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">value_type</span><span class="col-type">varchar(20)</span><span class="badge badge-nn">NN</span></div>
+        <div class="col-row"><span class="col-name">description</span><span class="col-type">text</span></div>
+        <div class="col-row"><span class="col-name">is_public</span><span class="col-type">boolean</span></div>
+        <div class="col-row"><span class="col-name fk">updated_by</span><span class="col-type">uuid</span><span class="badge badge-fk">FK</span></div>
+        <div class="col-row"><span class="col-name">updated_at</span><span class="col-type">timestamptz</span></div>
+      </div>
+      <div class="fk-list">
+        <div class="fk-title">Foreign Keys</div>
+        <div class="fk-item">updated_by <span>→</span> admin_users.id</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

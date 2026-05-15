@@ -1,0 +1,18 @@
+psql:C:/Users/ahmed/Desktop/HCS/try2/database/migrations/12_owner_auth.sql:6: NOTICE:  column "password_hash" of relation "clients" already exists, skipping
+ALTER TABLE
+UPDATE 0
+psql:C:/Users/ahmed/Desktop/HCS/try2/database/migrations/12_owner_auth.sql:23: NOTICE:  relation "client_sessions" already exists, skipping
+CREATE TABLE
+INSERT 0 0
+INSERT 0 0
+psql:C:/Users/ahmed/Desktop/HCS/try2/database/migrations/13_youssef_setup.sql:8: NOTICE:  column "password_hash" of relation "clients" already exists, skipping
+ALTER TABLE
+psql:C:/Users/ahmed/Desktop/HCS/try2/database/migrations/13_youssef_setup.sql:21: NOTICE:  relation "client_sessions" already exists, skipping
+CREATE TABLE
+INSERT 0 1
+INSERT 0 1
+psql:C:/Users/ahmed/Desktop/HCS/try2/database/migrations/13_youssef_setup.sql:87: ERROR:  invalid input syntax for type uuid: "h0000001-0000-0000-0000-000000000001"
+LINE 3:     'h0000001-0000-0000-0000-000000000001',
+            ^
+UPDATE 1
+Done. 

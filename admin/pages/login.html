@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HCS — Admin Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:         #080603;
+    --bg2:        #100D07;
+    --bg3:        #18130C;
+    --bg4:        #1F1910;
+    --amber:      #C47820;
+    --amber-lit:  #E09830;
+    --amber-dim:  #7A4C12;
+    --cream:      #EDE0C6;
+    --cream-dim:  #9A8A70;
+    --cream-faint:#4A4030;
+    --green:      #4E9468;
+    --danger:     #C04040;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Jost', sans-serif;
+    background: var(--bg);
+    color: var(--cream);
+    overflow: hidden;
+  }
+
+  /* Grain overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.032;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  }
+
+  /* === LAYOUT === */
+  .page {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* === LEFT PANEL === */
+  .left {
+    flex: 1;
+    position: relative;
+    background: var(--bg2);
+    border-right: 1px solid rgba(196,120,32,.15);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 3rem;
+  }
+
+  /* Grid overlay */
+  .left::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(196,120,32,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(196,120,32,.04) 1px, transparent 1px);
+    background-size: 72px 72px;
+    pointer-events: none;
+  }
+
+  /* Scanlines */
+  .left::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      180deg,
+      rgba(196,120,32,.025) 0px,
+      rgba(196,120,32,.025) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+    pointer-events: none;
+  }
+
+  /* Scan beam */
+  .beam {
+    position: absolute;
+    left: 0; right: 0;
+    height: 160px;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(196,120,32,.04) 40%,
+      rgba(196,120,32,.09) 50%,
+      rgba(196,120,32,.04) 60%,
+      transparent 100%
+    );
+    animation: beam 7s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  @keyframes beam {
+    0%   { top: -160px; }
+    100% { top: 100%; }
+  }
+
+  /* Ambient glow */
+  .ambient {
+    position: absolute;
+    width: 520px;
+    height: 520px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(196,120,32,.12) 0%, transparent 70%);
+    bottom: -100px;
+    left: -80px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Corner brackets */
+  .corner {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    z-index: 2;
+  }
+  .corner.tl { top: 2.8rem; left: 2.8rem; border-top: 1px solid rgba(196,120,32,.5); border-left: 1px solid rgba(196,120,32,.5); }
+  .corner.tr { top: 2.8rem; right: 2.8rem; border-top: 1px solid rgba(196,120,32,.5); border-right: 1px solid rgba(196,120,32,.5); }
+  .corner.bl { bottom: 2.8rem; left: 2.8rem; border-bottom: 1px solid rgba(196,120,32,.5); border-left: 1px solid rgba(196,120,32,.5); }
+  .corner.br { bottom: 2.8rem; right: 2.8rem; border-bottom: 1px solid rgba(196,120,32,.5); border-right: 1px solid rgba(196,120,32,.5); }
+
+  /* Left content */
+  .left-top {
+    position: relative;
+    z-index: 3;
+    animation: fadeUp .9s cubic-bezier(.22,1,.36,1) both;
+  }
+
+  .left-mid {
+    position: relative;
+    z-index: 3;
+    animation: fadeUp .9s cubic-bezier(.22,1,.36,1) .12s both;
+  }
+
+  .left-bot {
+    position: relative;
+    z-index: 3;
+    animation: fadeUp .9s cubic-bezier(.22,1,.36,1) .24s both;
+  }
+
+  /* Logo */
+  .brand-mark {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.55rem;
+    font-weight: 600;
+    letter-spacing: .28em;
+    text-transform: uppercase;
+    color: var(--cream);
+  }
+  .brand-mark span { color: var(--amber); }
+
+  .brand-sub {
+    margin-top: .45rem;
+    font-size: .55rem;
+    font-weight: 400;
+    letter-spacing: .38em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+  }
+
+  /* Central hero text */
+  .hero-label {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    margin-bottom: 1.4rem;
+  }
+  .hero-label-line {
+    width: 36px;
+    height: 1px;
+    background: var(--amber);
+  }
+  .hero-label-txt {
+    font-size: .55rem;
+    font-weight: 400;
+    letter-spacing: .34em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.8rem, 4.5vw, 4.2rem);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -.01em;
+    color: var(--cream);
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--amber-lit);
+  }
+
+  .hero-desc {
+    margin-top: 1.6rem;
+    font-size: .82rem;
+    font-weight: 300;
+    line-height: 1.9;
+    letter-spacing: .07em;
+    color: var(--cream-dim);
+    max-width: 340px;
+  }
+
+  /* Status row */
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+  }
+  .s-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .s-dot.green { background: var(--green); box-shadow: 0 0 6px var(--green), 0 0 10px var(--green); }
+  .s-dot.amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); animation: ldot 1.9s ease-in-out infinite; }
+  .s-dot.dim   { background: var(--cream-faint); }
+
+  @keyframes ldot {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: .35; }
+  }
+
+  .status-label {
+    font-size: .53rem;
+    font-weight: 400;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--cream-faint);
+  }
+
+  /* === RIGHT PANEL === */
+  .right {
+    width: 460px;
+    flex-shrink: 0;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 3.5rem;
+    position: relative;
+  }
+
+  /* Subtle top amber line */
+  .right::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--amber-dim), transparent);
+  }
+
+  .form-wrap {
+    width: 100%;
+    animation: fadeUp .9s cubic-bezier(.22,1,.36,1) .1s both;
+  }
+
+  /* Form header */
+  .form-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    margin-bottom: 2.2rem;
+  }
+  .form-eyebrow-line {
+    width: 28px;
+    height: 1px;
+    background: var(--amber);
+  }
+  .form-eyebrow-txt {
+    font-size: .53rem;
+    font-weight: 400;
+    letter-spacing: .36em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+
+  .form-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.4rem;
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -.01em;
+    color: var(--cream);
+    margin-bottom: .6rem;
+  }
+  .form-title em {
+    font-style: italic;
+    color: var(--amber-lit);
+  }
+
+  .form-tagline {
+    font-size: .78rem;
+    font-weight: 300;
+    letter-spacing: .07em;
+    color: var(--cream-dim);
+    margin-bottom: 2.6rem;
+    line-height: 1.7;
+  }
+
+  /* Fields */
+  .field {
+    margin-bottom: 1.3rem;
+  }
+
+  .field label {
+    display: block;
+    font-size: .52rem;
+    font-weight: 500;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+    margin-bottom: .55rem;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .input-wrap svg {
+    position: absolute;
+    left: .9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: .45;
+    pointer-events: none;
+    transition: opacity .2s;
+  }
+
+  .input-wrap:focus-within svg {
+    opacity: .85;
+    color: var(--amber);
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid rgba(196,120,32,.18);
+    border-radius: 8px;
+    padding: .72rem .9rem .72rem 2.5rem;
+    font-family: 'Jost', sans-serif;
+    font-size: .82rem;
+    font-weight: 300;
+    letter-spacing: .06em;
+    color: var(--cream);
+    outline: none;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+  }
+
+  .field input::placeholder {
+    color: var(--cream-faint);
+    letter-spacing: .05em;
+  }
+
+  .field input:focus {
+    border-color: var(--amber);
+    background: var(--bg4);
+    box-shadow: 0 0 0 3px rgba(196,120,32,.08), inset 0 1px 2px rgba(0,0,0,.3);
+  }
+
+  .field input:hover:not(:focus) {
+    border-color: rgba(196,120,32,.32);
+  }
+
+  /* Show password toggle */
+  .pw-toggle {
+    position: absolute;
+    right: .9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: .4;
+    color: var(--cream-dim);
+    padding: .2rem;
+    transition: opacity .2s;
+    display: flex;
+    align-items: center;
+  }
+  .pw-toggle:hover { opacity: .8; }
+
+  /* Remember / forgot row */
+  .form-extras {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+
+  .remember {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .remember input[type="checkbox"] {
+    display: none;
+  }
+
+  .checkbox-ui {
+    width: 16px;
+    height: 16px;
+    border: 1px solid rgba(196,120,32,.28);
+    border-radius: 4px;
+    background: var(--bg3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color .2s, background .2s;
+    flex-shrink: 0;
+  }
+
+  .remember input:checked + .checkbox-ui {
+    background: rgba(196,120,32,.15);
+    border-color: var(--amber);
+  }
+
+  .checkbox-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--amber);
+    border-radius: 2px;
+    opacity: 0;
+    transform: scale(0);
+    transition: opacity .15s, transform .15s;
+  }
+
+  .remember input:checked + .checkbox-ui .checkbox-dot {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .remember-label {
+    font-size: .72rem;
+    font-weight: 300;
+    letter-spacing: .06em;
+    color: var(--cream-dim);
+  }
+
+  .forgot {
+    font-size: .72rem;
+    font-weight: 300;
+    letter-spacing: .08em;
+    color: var(--cream-faint);
+    text-decoration: none;
+    transition: color .2s;
+  }
+  .forgot:hover { color: var(--amber); }
+
+  /* Submit button */
+  .btn-login {
+    width: 100%;
+    background: var(--amber);
+    border: none;
+    border-radius: 8px;
+    padding: .82rem 1.5rem;
+    font-family: 'Jost', sans-serif;
+    font-size: .62rem;
+    font-weight: 500;
+    letter-spacing: .26em;
+    text-transform: uppercase;
+    color: var(--bg);
+    cursor: pointer;
+    transition: background .2s, transform .18s, box-shadow .2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-login::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .btn-login:hover {
+    background: var(--amber-lit);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(196,120,32,.25), 0 2px 6px rgba(0,0,0,.3);
+  }
+
+  .btn-login:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+
+  /* Error message */
+  .error-msg {
+    display: none;
+    align-items: center;
+    gap: .55rem;
+    margin-bottom: 1.2rem;
+    padding: .65rem .9rem;
+    background: rgba(192,64,64,.08);
+    border: 1px solid rgba(192,64,64,.25);
+    border-radius: 8px;
+  }
+  .error-msg.show { display: flex; }
+  .error-msg-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--danger);
+    box-shadow: 0 0 5px var(--danger);
+    flex-shrink: 0;
+  }
+  .error-msg span {
+    font-size: .72rem;
+    font-weight: 300;
+    letter-spacing: .06em;
+    color: var(--danger);
+  }
+
+  /* Version / footer */
+  .form-footer {
+    margin-top: 2.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+  }
+  .form-footer-txt {
+    font-size: .52rem;
+    font-weight: 300;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--cream-faint);
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 900px) {
+    .left { display: none; }
+    .right { width: 100%; }
+  }
+
+  /* Loading shimmer on button */
+  .btn-login.loading {
+    pointer-events: none;
+    color: transparent;
+  }
+  .btn-login.loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.12) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.2s linear infinite;
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to   { background-position: 200% 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ═══ LEFT BRAND PANEL ═══ -->
+  <div class="left">
+    <div class="beam"></div>
+    <div class="ambient"></div>
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <!-- Top logo -->
+    <div class="left-top">
+      <div class="brand-mark">H<span>C</span>S</div>
+      <div class="brand-sub">Equine Intelligence System</div>
+    </div>
+
+    <!-- Centre hero copy -->
+    <div class="left-mid">
+      <div class="hero-label">
+        <div class="hero-label-line"></div>
+        <div class="hero-label-txt">Admin Portal</div>
+      </div>
+      <h1 class="hero-title">
+        Precision care,<br>
+        <em>intelligent</em><br>
+        oversight.
+      </h1>
+      <p class="hero-desc">
+        Monitor vitals, manage records, and coordinate stable operations — all from a single intelligent dashboard.
+      </p>
+    </div>
+
+    <!-- Bottom status row -->
+    <div class="left-bot">
+      <div class="status-row">
+        <div class="status-item">
+          <div class="s-dot green"></div>
+          <span class="status-label">All Systems Online</span>
+        </div>
+        <div class="status-item">
+          <div class="s-dot amber"></div>
+          <span class="status-label">AI Models Active</span>
+        </div>
+        <div class="status-item">
+          <div class="s-dot dim"></div>
+          <span class="status-label">v2.4.1</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RIGHT LOGIN PANEL ═══ -->
+  <div class="right">
+    <div class="form-wrap">
+
+      <!-- Eyebrow -->
+      <div class="form-eyebrow">
+        <div class="form-eyebrow-line"></div>
+        <div class="form-eyebrow-txt">Secure Access</div>
+      </div>
+
+      <!-- Title -->
+      <h2 class="form-title">
+        Welcome<br>
+        <em>back.</em>
+      </h2>
+      <p class="form-tagline">Sign in to your administrator account to continue.</p>
+
+      <!-- Error state -->
+      <div class="error-msg" id="errorMsg">
+        <div class="error-msg-dot"></div>
+        <span id="errorTxt">Invalid credentials. Please try again.</span>
+      </div>
+
+      <!-- Form -->
+      <form id="loginForm" novalidate>
+        <!-- Email -->
+        <div class="field">
+          <label for="email">Email Address</label>
+          <div class="input-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="m2 7 10 7 10-7"/>
+            </svg>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="admin@hcs.com"
+              autocomplete="email"
+              required
+            >
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="••••••••••"
+              autocomplete="current-password"
+              required
+            >
+            <button type="button" class="pw-toggle" id="pwToggle" aria-label="Toggle password visibility">
+              <svg id="eyeIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Extras -->
+        <div class="form-extras">
+          <label class="remember">
+            <input type="checkbox" id="rememberMe">
+            <div class="checkbox-ui">
+              <div class="checkbox-dot"></div>
+            </div>
+            <span class="remember-label">Remember me</span>
+          </label>
+          <a href="#" class="forgot">Forgot password?</a>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-login" id="loginBtn">
+          Sign In
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <div class="form-footer">
+        <div class="form-footer-txt">HCS &nbsp;·&nbsp; Equine Intelligence System &nbsp;·&nbsp; All rights reserved</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // On Load check Auth
+  if (localStorage.getItem('adminToken')) {
+    window.location.href = '/admin/dashboard';
+  }
+  
+  // Password toggle
+  const pwToggle = document.getElementById('pwToggle');
+  const pwInput  = document.getElementById('password');
+  const eyeIcon  = document.getElementById('eyeIcon');
+
+  pwToggle.addEventListener('click', () => {
+    const isHidden = pwInput.type === 'password';
+    pwInput.type = isHidden ? 'text' : 'password';
+    eyeIcon.innerHTML = isHidden
+      ? `<path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-10-7-10-7a17.6 17.6 0 0 1 5.06-6.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 7 10 7a17.6 17.6 0 0 1-2.24 3.22M1 1l22 22"/>`
+      : `<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>`;
+  });
+
+  // Form submit
+  const form     = document.getElementById('loginForm');
+  const loginBtn = document.getElementById('loginBtn');
+  const errorMsg = document.getElementById('errorMsg');
+  const errorTxt = document.getElementById('errorTxt');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.classList.remove('show');
+
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!email || !password) {
+      errorTxt.textContent = 'Please enter your email and password.';
+      errorMsg.classList.add('show');
+      return;
+    }
+
+    loginBtn.classList.add('loading');
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, rememberMe: document.getElementById('rememberMe').checked })
+      });
+
+      loginBtn.classList.remove('loading');
+
+      if (response.ok) {
+        const data = await response.json();
+        // Save token (or rely on HTTP-only cookie if your API sets it)
+        localStorage.setItem('adminToken', data.access_token);
+        localStorage.setItem('adminRole', data.role || 'view_only');
+        window.location.href = '/admin/dashboard';
+      } else {
+        const errData = await response.json();
+        errorTxt.textContent = errData.detail || 'Invalid credentials. Please try again.';
+        errorMsg.classList.add('show');
+      }
+    } catch (err) {
+      loginBtn.classList.remove('loading');
+      errorTxt.textContent = 'Server connection failed. Please try again.';
+      errorMsg.classList.add('show');
+    }
+  });
+
+  // Hide error on input change
+  ['email','password'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      errorMsg.classList.remove('show');
+    });
+  });
+</script>
+
+</body>
+</html>

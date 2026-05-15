@@ -1,0 +1,10 @@
+Download the equine knowledge base for the RAG system and place the files in this folder.
+
+Download here:
+https://drive.google.com/drive/folders/1GIjj8aGskdhm321BnTbDic1kAjYrGRq2?usp=sharing
+
+After downloading, delete this text file and run:
+    python app/scripts/ingest_documents.py
+
+To re-index everything from scratch:
+    python app/scripts/ingest_documents.py --reset
